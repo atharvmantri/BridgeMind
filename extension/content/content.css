@@ -1,0 +1,481 @@
+/* BridgeMind Content Overlay Stylesheet */
+
+/* Imports */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+
+/* Main Overlay Container */
+#bridgemind-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2147483647; /* Ensure it stays above EVERYTHING else */
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Accessibility Font Stacks */
+#bridgemind-overlay.font-sans {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+#bridgemind-overlay.font-dyslexic {
+  /* Stack favoring dyslexic-friendly system fonts, fall back to Comic Sans if OpenDyslexic is not loaded */
+  font-family: 'OpenDyslexic', 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', sans-serif !important;
+}
+
+/* Spacing Schemes */
+#bridgemind-overlay.spacing-adhd .bm-reader-body p {
+  margin-bottom: 24px !important;
+  line-height: 1.9 !important;
+  word-spacing: 0.05em;
+}
+
+#bridgemind-overlay.spacing-dyslexic .bm-content-wrapper {
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.20em !important;
+  line-height: 2.0 !important;
+}
+
+#bridgemind-overlay.spacing-autism .bm-card {
+  border-left: 5px solid #5b4fe9 !important;
+  margin-bottom: 24px;
+}
+
+/* Themes Definition */
+#bridgemind-overlay.theme-cream {
+  background-color: #fdfaf2 !important;
+  color: #2b2821 !important;
+}
+#bridgemind-overlay.theme-cream .bm-top-bar {
+  background: rgba(253, 250, 242, 0.9) !important;
+  border-bottom: 1px solid rgba(43, 40, 33, 0.08) !important;
+}
+#bridgemind-overlay.theme-cream .bm-card {
+  background: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+}
+
+#bridgemind-overlay.theme-sepia {
+  background-color: #f4ecd8 !important;
+  color: #433422 !important;
+}
+#bridgemind-overlay.theme-sepia .bm-top-bar {
+  background: rgba(244, 236, 216, 0.9) !important;
+  border-bottom: 1px solid rgba(67, 52, 34, 0.08) !important;
+}
+#bridgemind-overlay.theme-sepia .bm-card {
+  background: #fbf5e6 !important;
+  box-shadow: 0 4px 15px rgba(67, 52, 34, 0.05);
+}
+
+#bridgemind-overlay.theme-dark {
+  background-color: #12111a !important;
+  color: #e4e4e7 !important;
+}
+#bridgemind-overlay.theme-dark .bm-top-bar {
+  background: rgba(18, 17, 26, 0.9) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+#bridgemind-overlay.theme-dark .bm-card {
+  background: #191824 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+#bridgemind-overlay.theme-high-contrast {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+}
+#bridgemind-overlay.theme-high-contrast .bm-top-bar {
+  background: #000000 !important;
+  border-bottom: 2px solid #ffff00 !important;
+}
+#bridgemind-overlay.theme-high-contrast .bm-card {
+  background: #000000 !important;
+  border: 1px solid #ffff00 !important;
+  color: #ffff00 !important;
+}
+#bridgemind-overlay.theme-high-contrast strong {
+  color: #ffffff !important;
+  text-decoration: underline;
+}
+
+/* Navigation Top Bar */
+.bm-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 40px;
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bm-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bm-logo-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #5b4fe9;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #5b4fe9;
+}
+
+.bm-brand-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.bm-profile-badge {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: rgba(91, 79, 233, 0.15);
+  color: #5b4fe9;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.bm-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bm-nav-btn {
+  background: rgba(120, 120, 120, 0.1);
+  border: 1px solid rgba(120, 120, 120, 0.2);
+  color: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bm-nav-btn:hover {
+  background: rgba(91, 79, 233, 0.15);
+  border-color: #5b4fe9;
+}
+
+.bm-themes {
+  display: flex;
+  gap: 8px;
+  margin: 0 10px;
+}
+
+.bm-theme-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.bm-theme-btn:hover {
+  transform: scale(1.15);
+}
+
+.bm-theme-btn.active {
+  border-color: #5b4fe9;
+}
+
+.bm-theme-btn.cream { background-color: #fdfaf2; }
+.bm-theme-btn.sepia { background-color: #f4ecd8; }
+.bm-theme-btn.dark { background-color: #12111a; }
+.bm-theme-btn.high-contrast { background-color: #000000; border-color: #ffff00; }
+
+.bm-btn-close {
+  background: #5b4fe9;
+  border: none;
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.bm-btn-close:hover {
+  opacity: 0.9;
+}
+
+/* Scrollable Content Wrapper */
+.bm-content-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px 10%;
+  box-sizing: border-box;
+}
+
+.bm-main-layout {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Cards Layout */
+.bm-card {
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 28px;
+  border: 1px solid rgba(120, 120, 120, 0.1);
+  transition: all 0.3s;
+}
+
+.bm-card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Warning Banner styling */
+.bm-warning-banner {
+  background-color: rgba(245, 158, 11, 0.12);
+  border: 1px solid #f59e0b;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: inherit;
+}
+
+.bm-warning-icon {
+  font-size: 20px;
+}
+
+/* Steps List (Communication Agent) */
+.bm-steps-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.bm-steps-list li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 14px;
+  font-size: 15px;
+}
+
+.bm-step-bullet {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  font-weight: 800;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+/* TL;DR lists */
+.bm-tldr-list {
+  padding-left: 20px;
+  margin-bottom: 20px;
+}
+
+.bm-tldr-list li {
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+/* Tabs & Summaries */
+.bm-tabs {
+  display: flex;
+  gap: 10px;
+  border-bottom: 1px solid rgba(120, 120, 120, 0.15);
+  margin-bottom: 12px;
+}
+
+.bm-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.bm-tab.active {
+  border-bottom-color: #5b4fe9;
+  opacity: 1;
+}
+
+.bm-tab-content {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Reader Content formatting */
+.bm-reader-body {
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.bm-reader-body h2 { font-size: 24px; margin: 30px 0 16px 0; font-family: 'Space Grotesk', sans-serif; }
+.bm-reader-body h3 { font-size: 20px; margin: 26px 0 14px 0; font-family: 'Space Grotesk', sans-serif; }
+.bm-reader-body h4 { font-size: 18px; margin: 22px 0 12px 0; font-family: 'Space Grotesk', sans-serif; }
+
+.bm-reader-body p {
+  margin-bottom: 18px;
+}
+
+.bm-reader-body strong {
+  color: #5b4fe9;
+  background: rgba(91, 79, 233, 0.05);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+/* Floating Concept Map Trigger Button */
+.bm-cmap-trigger-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: #5b4fe9;
+  color: #fff !important;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 24px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(91, 79, 233, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.bm-cmap-trigger-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(91, 79, 233, 0.6);
+}
+
+/* Concept Map Drawer */
+.bm-cmap-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 100vh;
+  background: inherit;
+  border-left: 1px solid rgba(120, 120, 120, 0.2);
+  box-shadow: -4px 0 30px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 2147483647;
+  animation: slide-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bm-cmap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid rgba(120, 120, 120, 0.15);
+}
+
+.bm-cmap-header h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  margin: 0;
+}
+
+.bm-cmap-close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: inherit;
+}
+
+.bm-cmap-canvas {
+  flex: 1;
+  overflow-y: auto;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.bm-cmap-root {
+  background: #5b4fe9 !important;
+  color: #fff !important;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-family: 'Space Grotesk', sans-serif;
+  box-shadow: 0 4px 15px rgba(91, 79, 233, 0.4);
+  text-align: center;
+  max-width: 80%;
+}
+
+.bm-cmap-arrow {
+  width: 2px;
+  height: 30px;
+  background: rgba(120, 120, 120, 0.3);
+  position: relative;
+}
+
+.bm-cmap-arrow::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: -4px;
+  border-width: 5px 5px 0;
+  border-style: solid;
+  border-color: rgba(120, 120, 120, 0.3) transparent;
+}
+
+.bm-cmap-nodes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  align-items: center;
+}
+
+.bm-cmap-node {
+  background: rgba(120, 120, 120, 0.08);
+  border: 1px solid rgba(120, 120, 120, 0.15);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  max-width: 90%;
+  width: 100%;
+}
+
+/* Animations */
+@keyframes slide-left {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}

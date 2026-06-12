@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BridgeMind — Cognitive Accessibility AI Platform</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Header / Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <img src="assets/logo.png" alt="BridgeMind Logo" class="logo-img">
+        <span class="logo-text">BridgeMind</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#simulator">Live Demo</a>
+        <a href="#how-it-works">AI Agents</a>
+        <a href="#impact">Our Impact</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="#simulator" class="btn btn-secondary">Try Demo</a>
+        <a href="file:///g:/BridgeMind/extension" class="btn btn-primary" target="_blank">Install Extension</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-container">
+      <div class="hero-badge">AI for a Better World • STEMINATE 2026</div>
+      <h1 class="hero-title">Learning, adapted for <br><span class="gradient-text">every mind.</span></h1>
+      <p class="hero-subtitle">
+        BridgeMind is a cognitive accessibility assistant that uses specialized AI agents to restructure web content, clear visual clutter, and generate step-by-step instructions in real time.
+      </p>
+      <div class="hero-ctas">
+        <a href="#simulator" class="btn btn-primary btn-large">Experience the Demo</a>
+        <a href="#how-it-works" class="btn btn-tertiary">Learn How It Works &darr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Before/After Live Simulator Section -->
+  <section class="simulator-section" id="simulator">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">See the Transformation</h2>
+        <p class="section-subtitle">Toggle between different cognitive profiles to see how BridgeMind restructures web pages instantly.</p>
+      </div>
+
+      <!-- Simulator Container -->
+      <div class="simulator-wrapper">
+        <!-- Controls -->
+        <div class="simulator-controls">
+          <button class="sim-profile-btn active" data-profile="adhd">
+            <span class="btn-icon">⚡</span> ADHD Profile
+          </button>
+          <button class="sim-profile-btn" data-profile="dyslexia">
+            <span class="btn-icon">📖</span> Dyslexia Profile
+          </button>
+          <button class="sim-profile-btn" data-profile="autism">
+            <span class="btn-icon">🧩</span> Autism Profile
+          </button>
+        </div>
+
+        <!-- Before/After Split Frame -->
+        <div class="simulator-frame">
+          
+          <!-- BEFORE: Raw Webpage -->
+          <div class="frame-half frame-before" id="pane-before">
+            <div class="frame-badge badge-before">Original Webpage (Dense & Cluttered)</div>
+            
+            <!-- Ad Sidebar Noise -->
+            <div class="mock-ad-banner">⚡ SHOP NOW! 50% OFF FLASH SALE! ⚡</div>
+            
+            <div class="mock-page-header">
+              <h1>The Theory of Quantum Entanglement</h1>
+              <div class="mock-meta">Published by SciTech Daily • 5 min read</div>
+            </div>
+            
+            <div class="mock-article-body">
+              <p>
+                Quantum entanglement is a physical phenomenon that occurs when a pair or group of particles are generated, interact, or share spatial proximity in such a way that the quantum state of each particle cannot be described independently of the state of the others, including when the particles are separated by a large distance.
+              </p>
+              <p>
+                This dense theory, originally formulated by Albert Einstein, Boris Podolsky, and Nathan Rosen in 1935, has puzzled physicists for generations. The topic is highly complex, involving complex calculations and quantum mechanics theory that are hard to grasp without full mathematical context, making it extremely difficult to parse.
+              </p>
+              
+              <!-- Pop up disruption -->
+              <div class="mock-popup-banner">
+                <h3>Subscribe to Newsletter!</h3>
+                <p>Join 50,000 scientists receiving weekly digests.</p>
+                <button>Sign Me Up</button>
+              </div>
+
+              <p>
+                Furthermore, when measurements of physical properties such as position, momentum, spin, and polarization are performed on entangled particles, they are found to be perfectly correlated. This is true even if the measurements are performed almost simultaneously at locations separated by light-years.
+              </p>
+            </div>
+            
+            <!-- Side Widgets -->
+            <div class="mock-sidebar">
+              <h3>Related Stories</h3>
+              <ul>
+                <li>10 Facts About black holes</li>
+                <li>How warp drive works</li>
+                <li>Is time travel possible?</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- AFTER: Adapted Webpage -->
+          <div class="frame-half frame-after theme-cream" id="pane-after">
+            <div class="frame-badge badge-after">Adapted by BridgeMind</div>
+            
+            <!-- Top Controls (Mock Injected) -->
+            <div class="mock-injected-nav">
+              <div class="mock-nav-brand">
+                <span class="brand-dot"></span>
+                <span>BridgeMind Active</span>
+              </div>
+              <div class="mock-theme-switches">
+                <button class="theme-pills active" data-theme="cream">Cream</button>
+                <button class="theme-pills" data-theme="sepia">Sepia</button>
+                <button class="theme-pills" data-theme="dark">Dark</button>
+              </div>
+            </div>
+
+            <div class="adapted-content-area">
+              <!-- TLDR (Comprehension Agent) -->
+              <div class="adapted-card adapted-tldr" id="adapted-tldr-box">
+                <h4>💡 Quick TL;DR Summary</h4>
+                <ul>
+                  <li>Quantum entanglement connects particle states across distances.</li>
+                  <li>Measurements on one particle instantly affect the other.</li>
+                  <li>Proposed in 1935 by Einstein, Podolsky, and Rosen.</li>
+                </ul>
+              </div>
+
+              <!-- Content (Reader Agent) -->
+              <div class="adapted-article-body" id="adapted-text-box">
+                <h3>Understanding Quantum Entanglement</h3>
+                <p>
+                  Quantum entanglement occurs when <strong>particles connect</strong> in a way that links their physical properties. 
+                </p>
+                <p>
+                  Because of this connection, actions on one particle **instantly influence** the other. This happens even if they are light-years apart.
+                </p>
+                <p>
+                  This behavior was first studied in 1935 by **Einstein, Podolsky, and Rosen**. They called it "spooky action at a distance."
+                </p>
+              </div>
+
+              <!-- Concept Map Button -->
+              <button class="mock-cmap-btn" id="sim-cmap-btn">🕸️ View Concept Map</button>
+
+              <!-- In-sim Concept Map Drawer -->
+              <div class="mock-cmap-drawer hidden" id="sim-cmap-drawer">
+                <div class="drawer-header">
+                  <h5>Concept Map</h5>
+                  <button id="sim-close-cmap">&times;</button>
+                </div>
+                <div class="drawer-body">
+                  <div class="cmap-bubble root">Quantum Entanglement</div>
+                  <div class="cmap-line"></div>
+                  <div class="cmap-nodes">
+                    <div class="cmap-bubble">Particle Links</div>
+                    <div class="cmap-bubble">Instant Effect</div>
+                    <div class="cmap-bubble">1935 Einstein Study</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Agent Details Section -->
+  <section class="how-it-works-section" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">The Multi-Agent Orchestrator</h2>
+        <p class="section-subtitle">Five specialized agents work in parallel to dynamically adapt pages based on user needs.</p>
+      </div>
+
+      <div class="agents-grid">
+        <!-- Agent 1 -->
+        <div class="agent-card">
+          <div class="agent-icon">📖</div>
+          <h3>Reader Agent</h3>
+          <p>Restructures dense prose into short paragraphs with bolded keywords, clear headers, and scannable visual structures.</p>
+          <div class="agent-target">Helps: ADHD, Dyslexia, Autism</div>
+        </div>
+
+        <!-- Agent 2 -->
+        <div class="agent-card">
+          <div class="agent-icon">⚡</div>
+          <h3>Focus Agent</h3>
+          <p>Scans the webpage DOM to identify clutter. Programmatically removes banner ads, newsletter pop-ups, comment loops, and menus.</p>
+          <div class="agent-target">Helps: ADHD, Autism</div>
+        </div>
+
+        <!-- Agent 3 -->
+        <div class="agent-card">
+          <div class="agent-icon">💡</div>
+          <h3>Comprehension Agent</h3>
+          <p>Extracts the core concepts of the webpage and returns bullet summaries, simple/detailed versions, and visual concept maps.</p>
+          <div class="agent-target">Helps: All Profiles</div>
+        </div>
+
+        <!-- Agent 4 -->
+        <div class="agent-card">
+          <div class="agent-icon">📋</div>
+          <h3>Communication Agent</h3>
+          <p>Rewrites forms and assignments into explicit numbered instruction steps. Avoids ambiguous words or implicit expectations.</p>
+          <div class="agent-target">Helps: Autism, ADHD</div>
+        </div>
+
+        <!-- Agent 5 -->
+        <div class="agent-card">
+          <div class="agent-icon">⚠️</div>
+          <h3>Emotion Agent</h3>
+          <p>Runs sentiment and keyword analytics to spot graphic or distressing content, mounting gentle, yellow alert warnings first.</p>
+          <div class="agent-target">Helps: Anxiety, PTSD</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- User Story / Impact Section -->
+  <section class="impact-section" id="impact">
+    <div class="container">
+      <div class="impact-grid">
+        <div class="impact-text-side">
+          <h2 class="section-title">Why Accessibility Matters</h2>
+          <p class="section-body">
+            15% to 20% of students globally are neurodivergent. Standard digital accessibility covers sensory impairments (contrast, screen readers), but completely ignores **cognitive accessibility**.
+          </p>
+          <p class="section-body">
+            Without visual structure, clutter removal, and precise guidance, dense digital textbook pages and assignments lead to intense overwhelm and increased dropout rates. BridgeMind makes the web clear, step-by-step, and accessible.
+          </p>
+          <div class="metric-row">
+            <div class="metric">
+              <span class="metric-num">3x</span>
+              <span class="metric-label">More likely to drop out of STEM</span>
+            </div>
+            <div class="metric">
+              <span class="metric-num">15%</span>
+              <span class="metric-label">Of students are neurodivergent</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="impact-card-side">
+          <div class="story-card">
+            <div class="story-header">
+              <div class="story-avatar">S</div>
+              <div>
+                <h4 class="story-name">Sarah's Experience</h4>
+                <p class="story-role">Computer Science Student with ADHD</p>
+              </div>
+            </div>
+            <p class="story-text">
+              "Before BridgeMind, opening a 20-page scientific paper meant total anxiety. The sidebars, flashing ads, and paragraphs made it impossible to read. Now, I load the ADHD profile, clean the page, review the concept map, and finish my reading assignments in minutes instead of hours."
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-left">
+        <img src="assets/logo.png" alt="BridgeMind Logo" class="footer-logo">
+        <span class="footer-title">BridgeMind</span>
+        <p>Dynamic cognitive accessibility helper. Built for STEMINATE 2026 Hackathon.</p>
+      </div>
+      <div class="footer-right">
+        <span>© 2026 BridgeMind Team. Free & Open Source.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
