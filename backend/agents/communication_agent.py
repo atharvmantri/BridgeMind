@@ -1,4 +1,4 @@
-from utils.claude_client import call_claude
+from utils.gemini_client import call_gemini
 from models.schemas import CommunicationOutput
 import re
 
@@ -19,7 +19,7 @@ def run_communication_agent(content: str) -> CommunicationOutput:
     """
     Runs the Communication Agent on instructional text or prompts.
     """
-    rewritten = call_claude(SYSTEM_PROMPT, content, response_format="text")
+    rewritten = call_gemini(SYSTEM_PROMPT, content, response_format="text")
     
     # Parse the steps out of the response
     # We look for lines starting with "1. ", "2. ", etc., or just list markers

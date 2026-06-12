@@ -1,4 +1,4 @@
-from utils.claude_client import call_claude
+from utils.gemini_client import call_gemini
 from models.schemas import ComprehensionOutput, ConceptMap
 import json
 import logging
@@ -25,7 +25,7 @@ def run_comprehension_agent(content: str) -> ComprehensionOutput:
     truncated_content = content[:10000]
     
     try:
-        response_text = call_claude(SYSTEM_PROMPT, truncated_content, response_format="json")
+        response_text = call_gemini(SYSTEM_PROMPT, truncated_content, response_format="json")
         response_text = response_text.strip()
         if response_text.startswith("```json"):
             response_text = response_text[7:]

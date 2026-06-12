@@ -1,4 +1,4 @@
-from utils.claude_client import call_claude
+from utils.gemini_client import call_gemini
 from models.schemas import FocusOutput
 import json
 import logging
@@ -42,7 +42,7 @@ def run_focus_agent(content: str, focus_level: int = 2) -> FocusOutput:
     truncated_content = content[:8000]
     
     try:
-        response_text = call_claude(SYSTEM_PROMPT, truncated_content, response_format="json")
+        response_text = call_gemini(SYSTEM_PROMPT, truncated_content, response_format="json")
         # Strip any markdown code fences if Claude includes them
         response_text = response_text.strip()
         if response_text.startswith("```json"):

@@ -1,4 +1,4 @@
-from utils.claude_client import call_claude
+from utils.gemini_client import call_gemini
 from models.schemas import EmotionOutput
 import json
 import re
@@ -43,7 +43,7 @@ def run_emotion_agent(content: str) -> EmotionOutput:
     # If triggers are found or we want to double check, call Claude
     # If Claude client isn't available, we use local detection to immediately return
     try:
-        response_text = call_claude(SYSTEM_PROMPT, truncated_content, response_format="json")
+        response_text = call_gemini(SYSTEM_PROMPT, truncated_content, response_format="json")
         response_text = response_text.strip()
         if response_text.startswith("```json"):
             response_text = response_text[7:]

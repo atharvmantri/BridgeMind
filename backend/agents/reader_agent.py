@@ -1,4 +1,4 @@
-from utils.claude_client import call_claude
+from utils.gemini_client import call_gemini
 from models.schemas import ReaderOutput
 import re
 
@@ -22,7 +22,7 @@ def run_reader_agent(content: str) -> ReaderOutput:
     Returns structured markdown and a list of text chunks.
     """
     # Call Claude or Mock simulator
-    structured_markdown = call_claude(SYSTEM_PROMPT, content, response_format="text")
+    structured_markdown = call_gemini(SYSTEM_PROMPT, content, response_format="text")
     
     # Parse chunks from the markdown for granular UI rendering if needed
     # A chunk is defined as a section beginning with a heading (### or ##)

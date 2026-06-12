@@ -1,57 +1,64 @@
 import os
 import re
-from typing import Dict, Any, List
 import logging
-from anthropic import Anthropic
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 
 load_dotenv()
 
-logger = logging.getLogger("bridgemind.claude_client")
+logger = logging.getLogger("bridgemind.gemini_client")
 
-# Initialize client if key is present
-api_key = os.getenv("ANTHROPIC_API_KEY")
+# Retrieve configuration
+project_id = os.getenv("VERTEX_PROJECT")
+location = os.getenv("VERTEX_LOCATION", "global")
+model_name = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
+
 client = None
 
-if api_key:
+if not project_id:
+    logger.warning("VERTEX_PROJECT environment variable is not set. Gemini Vertex AI client will not be initialized, falling back to simulator.")
+else:
     try:
-        client = Anthropic(api_key=api_key)
-        logger.info("Anthropic client initialized successfully.")
+        client = genai.Client(
+            vertexai=True,
+            project=project_id,
+            location=location,
+        )
+        logger.info("Gemini Vertex AI client initialized successfully.")
     except Exception as e:
-        logger.error(f"Failed to initialize Anthropic client: {e}")
+        logger.error(f"Failed to initialize Gemini Vertex AI client: {e}")
 
-def call_claude(system_prompt: str, user_content: str, response_format: str = "text") -> str:
+def call_gemini(system_prompt: str, user_content: str, response_format: str = "text") -> str:
     """
-    Calls the Anthropic Claude API using claude-3-5-sonnet.
-    Falls back to mock responses if the API key is missing or calls fail.
+    Calls the Google Gemini Vertex AI API using gemini-3.1-flash-lite.
+    Falls back to mock responses if the client is missing or calls fail.
     """
     if client:
         try:
-            logger.info("Calling Claude API...")
-            # We use the standard model claude-3-5-sonnet-20241022 or equivalent
-            # In the PRD it mentions claude-sonnet-4-6 which is a placeholder for standard Sonnet,
-            # we will use 'claude-3-5-sonnet-20241022' as the current standard model.
-            message = client.messages.create(
-                model="claude-3-5-sonnet-20241022",
-                max_tokens=4000,
+            logger.info("Calling Gemini Vertex AI API...")
+            mime_type = "application/json" if response_format == "json" else "text/plain"
+            config = types.GenerateContentConfig(
+                system_instruction=system_prompt,
+                response_mime_type=mime_type,
                 temperature=0.1,
-                system=system_prompt,
-                messages=[
-                    {"role": "user", "content": user_content}
-                ]
             )
-            # The response is in message.content[0].text
-            return message.content[0].text
+            response = client.models.generate_content(
+                model=model_name,
+                contents=user_content,
+                config=config,
+            )
+            return response.text
         except Exception as e:
-            logger.error(f"Claude API call failed, falling back to simulator: {e}")
+            logger.error(f"Gemini API call failed, falling back to simulator: {e}")
             # Fall through to mock logic
-    
+
     return generate_mock_response(system_prompt, user_content, response_format)
 
 def generate_mock_response(system_prompt: str, user_content: str, response_format: str) -> str:
     """
-    Simulates Claude's behavior by processing the input text and structuring it.
-    This allows the entire system to run dynamically even without an API key.
+    Simulates Gemini's behavior by processing the input text and structuring it.
+    This allows the entire system to run dynamically even without an active client or credentials.
     """
     # Simple cleanup of HTML tags if any
     clean_text = re.sub(r'<[^>]+>', ' ', user_content)
@@ -151,7 +158,7 @@ def generate_mock_response(system_prompt: str, user_content: str, response_forma
         # Return numbered list as requested in prompt format
         return "\n".join([f"{idx+1}. {step}" for idx, step in enumerate(steps)])
         
-    # 4. Emotion Agent Mock (does not use Claude in typical cases, but just in case)
+    # 4. Emotion Agent Mock (does not use Gemini in typical cases, but just in case)
     elif "Emotion Agent" in system_prompt:
         # Keyword-based warning system
         trigger_words = ["death", "dead", "kill", "suicide", "crash", "war", "battle", "scared", "fear", "anxiety", "die", "died", "murder", "violence", "harm", "abuse"]

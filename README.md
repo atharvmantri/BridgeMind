@@ -16,10 +16,10 @@ BridgeMind is a Chrome Extension and Web Platform designed to adapt dense, unstr
 | Layer | Technologies |
 |---|---|
 | **Chrome Extension** | Manifest V3, Content script overlay, Background service worker, HTML/CSS/JS (Glassmorphic design) |
-| **Backend API** | FastAPI (Python), Uvicorn, Pydantic, Anthropic SDK, concurrent thread-pool orchestrator |
+| **Backend API** | FastAPI (Python), Uvicorn, Pydantic, google-genai SDK, concurrent thread-pool orchestrator |
 | **Orchestration** | Multi-Agent prompt chains with **Mock Mode** fallback capabilities |
 | **Web Landing Page** | HTML, Vanilla CSS (Premium animations, custom layouts), JS (Before/After split simulator) |
-| **AI Models** | Anthropic Claude 3.5 Sonnet |
+| **AI Models** | Google Gemini 3.5 Flash (Vertex AI) |
 
 ---
 
@@ -37,12 +37,12 @@ BridgeMind is a Chrome Extension and Web Platform designed to adapt dense, unstr
   /models
     schemas.py               ← Pydantic request/response schema specifications
   /utils
-    claude_client.py         ← Claude API client with high-fidelity Mock fallback
+    gemini_client.py         ← Gemini API client with high-fidelity Mock fallback
     create_icons.py          ← Python script generating resized icon assets
   main.py                    ← FastAPI entrypoint with CORS routing
   requirements.txt           ← Python dependency manifest
   test_api.py                ← Local API integration verification test suite
-  .env                       ← Key configuration (ANTHROPIC_API_KEY)
+  .env                       ← Key configuration (VERTEX_PROJECT, VERTEX_LOCATION, GEMINI_MODEL)
 
 /extension
   manifest.json              ← Chrome Manifest V3 configuration
@@ -80,12 +80,14 @@ Make sure you have Python 3.10+ installed.
    ```bash
    pip install -r requirements.txt
    ```
-3. Set your Anthropic API Key (Optional):
-   Create a `.env` file or fill out the template with your key:
+3. Set your Google Gemini Vertex AI Project (Optional):
+   Create a `.env` file or fill out the template with your configuration:
    ```env
-   ANTHROPIC_API_KEY=your-actual-api-key
+   VERTEX_PROJECT=your-gcp-project-id
+   VERTEX_LOCATION=global
+   GEMINI_MODEL=gemini-3.5-flash
    ```
-   *Note: If no API key is specified, BridgeMind automatically starts in **Mock Mode**, using a local parser and generator to simulate Claude's formatting. This ensures out-of-the-box offline functionality for testing.*
+   *Note: If no project details are specified or Vertex AI credentials are not configured, BridgeMind automatically starts in **Mock Mode**, using a local parser and generator to simulate Gemini's formatting. This ensures out-of-the-box offline functionality for testing.*
 4. Start the development server:
    ```bash
    python main.py
@@ -116,4 +118,4 @@ python test_api.py
 ---
 
 ## 🤖 AI Disclosure
-BridgeMind was developed with assistance from Google DeepMind's Antigravity AI coding assistant and integrates the Anthropic Claude API for live cognitive adaptation prompts.
+BridgeMind was developed with assistance from Google DeepMind's Antigravity AI coding assistant and integrates the Google Gemini Vertex AI API for live cognitive adaptation prompts.
