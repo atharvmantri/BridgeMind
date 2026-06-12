@@ -85,7 +85,7 @@ Make sure you have Python 3.10+ installed.
    ```env
    VERTEX_PROJECT=your-gcp-project-id
    VERTEX_LOCATION=global
-   GEMINI_MODEL=gemini-3.5-flash
+   GEMINI_MODEL=gemini-3.1-flash-lite
    ```
    *Note: If no project details are specified or Vertex AI credentials are not configured, BridgeMind automatically starts in **Mock Mode**, using a local parser and generator to simulate Gemini's formatting. This ensures out-of-the-box offline functionality for testing.*
 4. Start the development server:

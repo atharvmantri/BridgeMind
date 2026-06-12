@@ -394,6 +394,10 @@
   animation: slide-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.bm-cmap-drawer.hidden {
+  display: none !important;
+}
+
 .bm-cmap-header {
   display: flex;
   justify-content: space-between;
