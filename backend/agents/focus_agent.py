@@ -21,7 +21,7 @@ def run_focus_agent(content: str, focus_level: int = 2) -> FocusOutput:
     """
     # Standard fallback selectors for general pages
     default_selectors = [
-        "iframe", "ins", ".ads", ".ad", "[id*='ad']", "[class*='ad']",
+        "iframe", "ins", ".ads", ".ad", ".ad-banner", ".ad-container", ".advertisement",
         "aside", "#sidebar", ".sidebar", "[id*='sidebar']", "[class*='sidebar']",
         ".comments", "#comments", ".comment-section", ".social-share", ".share-buttons",
         ".banner", ".cookie-notice", ".cookie-banner", "#cookie-consent",

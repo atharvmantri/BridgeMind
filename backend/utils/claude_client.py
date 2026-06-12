@@ -177,7 +177,7 @@ def generate_mock_response(system_prompt: str, user_content: str, response_forma
         import json
         return json.dumps({
             "remove_selectors": [
-                "iframe", "ins", ".ads", ".ad", "[id*='ad']", "[class*='ad']",
+                "iframe", "ins", ".ads", ".ad", ".ad-banner", ".ad-container", ".advertisement",
                 "aside", "#sidebar", ".sidebar", "[id*='sidebar']", "[class*='sidebar']",
                 ".comments", "#comments", ".comment-section", ".social-share", ".share-buttons",
                 ".banner", ".cookie-notice", ".cookie-banner", "#cookie-consent",
