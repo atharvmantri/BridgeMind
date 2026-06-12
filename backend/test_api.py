@@ -65,11 +65,41 @@ def test_adapt():
     
     print("Adaptation integration test passed successfully!")
 
+def test_chat():
+    print("Testing chat endpoint...")
+    payload = {
+        "content": "Quantum entanglement is a phenomenon where particles share spatial proximity.",
+        "query": "What is quantum entanglement?",
+        "profile": "adhd"
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}. Response: {response.text}"
+    data = response.json()
+    assert "response" in data
+    assert len(data["response"]) > 0
+    print("Chat check passed.")
+
+def test_simplify():
+    print("Testing simplify endpoint...")
+    payload = {
+        "text": "spatial proximity",
+        "mode": "define",
+        "profile": "adhd"
+    }
+    response = client.post("/api/simplify", json=payload)
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}. Response: {response.text}"
+    data = response.json()
+    assert "result" in data
+    assert len(data["result"]) > 0
+    print("Simplify check passed.")
+
 if __name__ == "__main__":
     try:
         test_health()
         test_profiles()
         test_adapt()
+        test_chat()
+        test_simplify()
         print("\nAll integration tests PASSED. FastAPI app schemas and orchestrator are fully correct.")
     except AssertionError as e:
         print(f"Assertion failed during testing: {e}")
@@ -77,3 +107,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Unexpected error during testing: {e}")
         sys.exit(1)
+

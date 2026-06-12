@@ -483,3 +483,363 @@
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
 }
+
+/* Reading Ruler */
+.bm-reading-ruler {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 40px; /* will be dynamically adjusted */
+  background: rgba(91, 79, 233, 0.08);
+  border-top: 2px solid #5b4fe9;
+  border-bottom: 2px solid #5b4fe9;
+  pointer-events: none;
+  z-index: 2147483640;
+  transition: opacity 0.2s, height 0.1s;
+}
+#bridgemind-overlay.theme-dark .bm-reading-ruler {
+  background: rgba(91, 79, 233, 0.15);
+  border-top: 2px solid #786efb;
+  border-bottom: 2px solid #786efb;
+}
+#bridgemind-overlay.theme-high-contrast .bm-reading-ruler {
+  background: rgba(255, 255, 0, 0.15);
+  border-top: 3px solid #ffff00;
+  border-bottom: 3px solid #ffff00;
+}
+
+/* TTS highlighting */
+.bm-highlight-sentence {
+  background-color: rgba(91, 79, 233, 0.08);
+  border-bottom: 1px dashed rgba(91, 79, 233, 0.4);
+  transition: background-color 0.2s;
+  border-radius: 4px;
+}
+#bridgemind-overlay.theme-dark .bm-highlight-sentence {
+  background-color: rgba(120, 110, 251, 0.15);
+  border-bottom: 1px dashed rgba(120, 110, 251, 0.5);
+}
+.bm-highlight-word {
+  background-color: rgba(16, 185, 129, 0.25) !important;
+  color: inherit !important;
+  font-weight: 700;
+  border-radius: 3px;
+  box-shadow: 0 0 4px rgba(16, 185, 129, 0.4);
+}
+#bridgemind-overlay.theme-high-contrast .bm-highlight-word {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Speaker controls styled next to readable blocks */
+.bm-tts-controls {
+  display: inline-flex;
+  gap: 8px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+.bm-tts-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.5;
+  transition: opacity 0.2s, transform 0.1s;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: inherit;
+}
+.bm-tts-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  background: rgba(120, 120, 120, 0.1);
+}
+
+/* Ask BridgeMind Sidebar Chat */
+.bm-chat-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 480px;
+  height: 100vh;
+  background: inherit;
+  border-left: 1px solid rgba(120, 120, 120, 0.2);
+  box-shadow: -4px 0 30px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 2147483647;
+  animation: slide-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.bm-chat-resizer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 2147483648;
+  background: transparent;
+  transition: background 0.2s;
+}
+.bm-chat-resizer:hover,
+.bm-chat-resizer.dragging {
+  background: rgba(91, 79, 233, 0.3) !important;
+}
+
+.bm-chat-sidebar.hidden {
+  display: none !important;
+}
+.bm-chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid rgba(120, 120, 120, 0.15);
+}
+.bm-chat-header h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  margin: 0;
+}
+.bm-chat-close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: inherit;
+}
+.bm-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.bm-message {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+.bm-message-user {
+  align-self: flex-end;
+  background-color: #5b4fe9;
+  color: #ffffff !important;
+  border-bottom-right-radius: 2px;
+}
+.bm-message-ai {
+  align-self: flex-start;
+  background-color: rgba(120, 120, 120, 0.08);
+  border: 1px solid rgba(120, 120, 120, 0.12);
+  border-bottom-left-radius: 2px;
+  color: inherit;
+}
+#bridgemind-overlay.theme-dark .bm-message-ai {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+#bridgemind-overlay.theme-high-contrast .bm-message-ai {
+  border-color: #ffff00;
+}
+.bm-chat-input-container {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(120, 120, 120, 0.15);
+  display: flex;
+  gap: 10px;
+  background: rgba(120, 120, 120, 0.02);
+}
+.bm-chat-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(120, 120, 120, 0.2);
+  background: rgba(120, 120, 120, 0.05);
+  color: inherit;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+}
+.bm-chat-input:focus {
+  border-color: #5b4fe9;
+}
+.bm-chat-send-btn {
+  background: #5b4fe9;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+.bm-chat-send-btn:hover {
+  opacity: 0.9;
+}
+
+/* Floating Ask Button next to Map */
+.bm-ask-trigger-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 140px; /* offset to avoid map btn overlap */
+  background: #10b981;
+  color: #fff !important;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 24px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  z-index: 2147483640;
+}
+.bm-ask-trigger-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+}
+
+/* Selection Tooltip CSS */
+.bm-selection-tooltip {
+  position: absolute;
+  z-index: 2147483645;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(91, 79, 233, 0.25);
+  padding: 6px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  display: flex;
+  gap: 4px;
+  transition: opacity 0.15s;
+  pointer-events: auto;
+}
+#bridgemind-overlay.theme-dark .bm-selection-tooltip {
+  background: rgba(25, 24, 36, 0.95);
+  border-color: rgba(120, 110, 251, 0.3);
+}
+.bm-tooltip-btn {
+  background: transparent;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: inherit;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s;
+}
+.bm-tooltip-btn:hover {
+  background: rgba(91, 79, 233, 0.12);
+}
+
+/* Inline Results card for selection details */
+.bm-selection-result-card {
+  border-left: 4px solid #10b981 !important;
+  background: rgba(16, 185, 129, 0.04) !important;
+  margin-top: 10px;
+}
+
+/* Upgraded Concept Map Styling */
+.bm-svg-cmap-canvas {
+  width: 100%;
+  height: 480px;
+  background: rgba(120, 120, 120, 0.03);
+  border-radius: 12px;
+  border: 1px dashed rgba(120, 120, 120, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+.bm-svg-connections-layer {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+.bm-svg-connection {
+  stroke: rgba(91, 79, 233, 0.4);
+  stroke-width: 2.5;
+  fill: none;
+  stroke-dasharray: 6 4;
+  animation: svg-dash 15s linear infinite;
+}
+@keyframes svg-dash {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+.bm-svg-node {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #5b4fe9;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: grab;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  user-select: none;
+  max-width: 125px;
+  text-align: center;
+  z-index: 2;
+}
+.bm-svg-node:active {
+  cursor: grabbing;
+  box-shadow: 0 8px 18px rgba(91, 79, 233, 0.25);
+}
+.bm-svg-node.root {
+  background: #5b4fe9;
+  color: #fff;
+  border-color: #5b4fe9;
+  font-size: 14px;
+  max-width: 150px;
+  box-shadow: 0 4px 15px rgba(91, 79, 233, 0.35);
+  z-index: 3;
+}
+#bridgemind-overlay.theme-dark .bm-svg-node:not(.root) {
+  background: #191824;
+  border-color: #786efb;
+  color: #e4e4e7;
+}
+
+/* Font ruler toggle visual indicators */
+.bm-nav-btn.active {
+  background-color: #5b4fe9 !important;
+  color: #ffffff !important;
+}
+
+/* General hidden utility */
+.hidden {
+  display: none !important;
+}
+
+/* Glassmorphism upgrade and nice scrollbar */
+.bm-content-wrapper::-webkit-scrollbar,
+.bm-chat-messages::-webkit-scrollbar {
+  width: 8px;
+}
+.bm-content-wrapper::-webkit-scrollbar-track,
+.bm-chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+.bm-content-wrapper::-webkit-scrollbar-thumb,
+.bm-chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 120, 0.2);
+  border-radius: 4px;
+}
+.bm-content-wrapper::-webkit-scrollbar-thumb:hover,
+.bm-chat-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 120, 120, 0.4);
+}
+

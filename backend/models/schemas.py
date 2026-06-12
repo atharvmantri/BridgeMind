@@ -59,3 +59,21 @@ class ProfileSettings(BaseModel):
     reading_level: ReadingLevel
     active_agents: List[str]
     custom_rules: Optional[Dict[str, Any]] = None
+
+# New schemas for Interactive Features
+class ChatRequest(BaseModel):
+    content: str
+    query: str
+    profile: ProfileType = Field(default="custom")
+
+class ChatResponse(BaseModel):
+    response: str
+
+class SimplifyRequest(BaseModel):
+    text: str
+    mode: Literal["define", "simplify"]
+    profile: Optional[ProfileType] = Field(default="custom")
+
+class SimplifyResponse(BaseModel):
+    result: str
+

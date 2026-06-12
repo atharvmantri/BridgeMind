@@ -51,4 +51,43 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch(err => sendResponse({ success: false, error: err.message }));
     return true;
   }
+
+  if (request.action === "chatQuery") {
+    fetch("http://127.0.0.1:8000/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: request.content,
+        query: request.query,
+        profile: request.profile || "custom"
+      })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("Server error");
+      return res.json();
+    })
+    .then(data => sendResponse({ success: true, data }))
+    .catch(err => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
+
+  if (request.action === "simplifyQuery") {
+    fetch("http://127.0.0.1:8000/api/simplify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: request.text,
+        mode: request.mode,
+        profile: request.profile || "custom"
+      })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("Server error");
+      return res.json();
+    })
+    .then(data => sendResponse({ success: true, data }))
+    .catch(err => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
 });
+

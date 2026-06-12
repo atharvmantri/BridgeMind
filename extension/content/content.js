@@ -227,22 +227,17 @@ function applyAdaptation(data, profile) {
   // Assemble Concept Map Drawer
   let conceptMapHtml = "";
   if (data.comprehension_output && data.comprehension_output.concept_map) {
-    const mainNode = data.comprehension_output.concept_map.main;
-    const subNodes = data.comprehension_output.concept_map.nodes
-      .map(node => `<div class="bm-cmap-node">${escapeHtml(node)}</div>`)
-      .join("");
-
     conceptMapHtml = `
       <div class="bm-cmap-drawer hidden" id="bm-cmap-drawer">
         <div class="bm-cmap-header">
           <h3>Visual Concept Map</h3>
           <button class="bm-cmap-close" id="btn-close-cmap">&times;</button>
         </div>
-        <div class="bm-cmap-canvas">
-          <div class="bm-cmap-root">${escapeHtml(mainNode)}</div>
-          <div class="bm-cmap-arrow"></div>
-          <div class="bm-cmap-nodes-grid">
-            ${subNodes}
+        <div class="bm-cmap-canvas" style="flex: 1; display: block; padding: 15px;">
+          <div style="font-size:12px; opacity:0.7; margin-bottom:8px; text-align:center;">💡 Drag concepts to organize, or double-click to simplify.</div>
+          <div class="bm-svg-cmap-canvas" id="bm-svg-canvas">
+            <svg class="bm-svg-connections-layer" id="bm-svg-connections"></svg>
+            <!-- Draggable nodes will be injected dynamically in setupOverlayEvents -->
           </div>
         </div>
       </div>
@@ -260,13 +255,12 @@ function applyAdaptation(data, profile) {
       </div>
       
       <div class="bm-controls">
-        <!-- Font Adjusters -->
-        <button class="bm-nav-btn" id="btn-font-dec" title="Decrease font size">A-</button>
-        <button class="bm-nav-btn" id="btn-font-inc" title="Increase font size">A+</button>
-        
         <!-- Font family toggle -->
         <button class="bm-nav-btn" id="btn-toggle-font" title="Toggle Dyslexic Font">Dyslexia Font</button>
         
+        <!-- Focus Ruler Toggle -->
+        <button class="bm-nav-btn" id="btn-toggle-ruler" title="Toggle Focus Ruler">Focus Ruler</button>
+
         <!-- Theme Selectors -->
         <div class="bm-themes">
           <button class="bm-theme-btn cream active" data-theme="cream" title="Cream Theme"></button>
@@ -282,6 +276,7 @@ function applyAdaptation(data, profile) {
 
     <!-- Main Content Container -->
     <div class="bm-content-wrapper">
+      <div class="bm-reading-ruler hidden" id="bm-reading-ruler"></div>
       <div class="bm-main-layout">
         ${emotionWarningHtml}
         ${communicationStepsHtml}
@@ -297,9 +292,33 @@ function applyAdaptation(data, profile) {
       </button>
     ` : ""}
 
+    <!-- Chat Trigger Button -->
+    <button class="bm-ask-trigger-btn" id="btn-trigger-chat">
+      <span class="chat-icon">💬</span> Ask AI
+    </button>
+
     <!-- Concept Map Drawer -->
     ${conceptMapHtml}
+
+    <!-- Chat Sidebar -->
+    <div class="bm-chat-sidebar hidden" id="bm-chat-sidebar">
+      <div class="bm-chat-resizer" id="bm-chat-resizer"></div>
+      <div class="bm-chat-header">
+        <h3>Ask BridgeMind AI</h3>
+        <button class="bm-chat-close" id="btn-close-chat">&times;</button>
+      </div>
+      <div class="bm-chat-messages" id="bm-chat-messages">
+        <div class="bm-message bm-message-ai">
+          Hi! I am your BridgeMind learning companion. Ask me any question about this webpage!
+        </div>
+      </div>
+      <div class="bm-chat-input-container">
+        <input type="text" class="bm-chat-input" id="bm-chat-input" placeholder="Type a question...">
+        <button class="bm-chat-send-btn" id="btn-send-chat">Send</button>
+      </div>
+    </div>
   `;
+
 
   // Prepend to body
   document.body.appendChild(overlayElement);
@@ -336,21 +355,7 @@ function setupOverlayEvents(data, profile) {
     });
   });
 
-  // Font adjusters
-  let currentSizePercent = 100;
-  const contentWrapper = overlayElement.querySelector(".bm-content-wrapper");
-  
-  document.getElementById("btn-font-inc").addEventListener("click", () => {
-    currentSizePercent += 10;
-    contentWrapper.style.fontSize = `${currentSizePercent}%`;
-  });
-  
-  document.getElementById("btn-font-dec").addEventListener("click", () => {
-    if (currentSizePercent > 80) {
-      currentSizePercent -= 10;
-      contentWrapper.style.fontSize = `${currentSizePercent}%`;
-    }
-  });
+
 
   // Dyslexia Font Toggle
   document.getElementById("btn-toggle-font").addEventListener("click", () => {
@@ -358,22 +363,49 @@ function setupOverlayEvents(data, profile) {
     overlayElement.classList.toggle("spacing-dyslexic");
   });
 
+  // Focus Ruler Toggle & Mouse Tracking
+  const btnToggleRuler = document.getElementById("btn-toggle-ruler");
+  const rulerEl = document.getElementById("bm-reading-ruler");
+  let isRulerActive = false;
+
+  btnToggleRuler.addEventListener("click", () => {
+    isRulerActive = !isRulerActive;
+    btnToggleRuler.classList.toggle("active", isRulerActive);
+    rulerEl.classList.toggle("hidden", !isRulerActive);
+  });
+
+  contentWrapper.addEventListener("mousemove", (e) => {
+    if (!isRulerActive) return;
+    const rect = contentWrapper.getBoundingClientRect();
+    const top = e.clientY - rect.top + contentWrapper.scrollTop - 20; // 20px offset (ruler is 40px high)
+    rulerEl.style.transform = `translateY(${top}px)`;
+  });
+
+  // Wire TTS controls for initial text blocks
+  const readableElements = overlayElement.querySelectorAll(".bm-reader-body p, .bm-reader-body h2, .bm-reader-body h3, .bm-reader-body h4, .bm-tldr-list li, #bm-summary-content");
+  readableElements.forEach(wireTTSElement);
+
   // Summary Toggle Tabs
   if (data.comprehension_output) {
     const tabSimple = document.getElementById("btn-tab-simple");
     const tabDetailed = document.getElementById("btn-tab-detailed");
     const summaryContent = document.getElementById("bm-summary-content");
 
+    // Add speaker button to the initial tab content
+    wireTTSElement(summaryContent);
+
     tabSimple.addEventListener("click", () => {
       tabSimple.classList.add("active");
       tabDetailed.classList.remove("active");
       summaryContent.innerHTML = escapeHtml(data.comprehension_output.simple_version);
+      wireTTSElement(summaryContent);
     });
 
     tabDetailed.addEventListener("click", () => {
       tabDetailed.classList.add("active");
       tabSimple.classList.remove("active");
       summaryContent.innerHTML = escapeHtml(data.comprehension_output.detailed_version);
+      wireTTSElement(summaryContent);
     });
 
     // Concept Map Drawer triggers
@@ -389,20 +421,433 @@ function setupOverlayEvents(data, profile) {
         cmapDrawer.classList.add("hidden");
       });
     }
+
+    // Setup Drag and Drop SVG Concept Map
+    if (data.comprehension_output.concept_map) {
+      setupConceptMap(data.comprehension_output.concept_map, profile);
+    }
   }
+
+  // Ask BridgeMind Sidebar Events
+  const btnTriggerChat = document.getElementById("btn-trigger-chat");
+  const chatSidebar = document.getElementById("bm-chat-sidebar");
+  const btnCloseChat = document.getElementById("btn-close-chat");
+  const btnSendChat = document.getElementById("btn-send-chat");
+  const chatInput = document.getElementById("bm-chat-input");
+  const chatMessages = document.getElementById("bm-chat-messages");
+  const chatResizer = document.getElementById("bm-chat-resizer");
+
+  btnTriggerChat.addEventListener("click", () => {
+    chatSidebar.classList.toggle("hidden");
+    if (!chatSidebar.classList.contains("hidden")) {
+      chatInput.focus();
+    }
+  });
+
+  btnCloseChat.addEventListener("click", () => {
+    chatSidebar.classList.add("hidden");
+  });
+
+  // Handle sidebar dragging to resize its width
+  let isResizing = false;
+  chatResizer.addEventListener("mousedown", (e) => {
+    isResizing = true;
+    chatResizer.classList.add("dragging");
+    document.body.style.cursor = "col-resize";
+    e.preventDefault();
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (!isResizing) return;
+    const newWidth = window.innerWidth - e.clientX;
+    // Bounds check: minimum 360px wide, maximum 85vw or 900px
+    if (newWidth >= 360 && newWidth <= Math.min(window.innerWidth * 0.85, 900)) {
+      chatSidebar.style.width = `${newWidth}px`;
+    }
+  });
+
+  document.addEventListener("mouseup", () => {
+    if (isResizing) {
+      isResizing = false;
+      chatResizer.classList.remove("dragging");
+      document.body.style.cursor = "default";
+    }
+  });
+
+
+  function sendChatMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    
+    appendChatMessage("user", text);
+    chatInput.value = "";
+    
+    const pageData = extractReadableContent();
+    const loadingEl = appendChatMessage("ai", "Thinking...");
+    
+    chrome.runtime.sendMessage({
+      action: "chatQuery",
+      content: pageData.content,
+      query: text,
+      profile: profile
+    }, (response) => {
+      if (loadingEl) loadingEl.remove();
+      if (response && response.success && response.data) {
+        appendChatMessage("ai", response.data.response);
+      } else {
+        const err = (response && response.error) ? response.error : "Failed to connect to backend.";
+        appendChatMessage("ai", `Error: ${err}`);
+      }
+    });
+  }
+
+  function appendChatMessage(sender, text) {
+    const msgEl = document.createElement("div");
+    msgEl.className = `bm-message bm-message-${sender}`;
+    if (sender === "ai") {
+      msgEl.innerHTML = parseSimpleMarkdown(text);
+      // Wire TTS to new AI responses!
+      wireTTSElement(msgEl);
+    } else {
+      msgEl.textContent = text;
+    }
+    chatMessages.appendChild(msgEl);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return msgEl;
+  }
+
+  btnSendChat.addEventListener("click", sendChatMessage);
+  chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      sendChatMessage();
+    }
+  });
+
+  // Text selection dictionary tooltip events
+  let activeTooltip = null;
+  contentWrapper.addEventListener("mouseup", (e) => {
+    if (activeTooltip && !activeTooltip.contains(e.target)) {
+      activeTooltip.remove();
+      activeTooltip = null;
+    }
+    
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    if (selectedText.length > 0 && selectedText.length < 300) {
+      const range = selection.getRangeAt(0);
+      const rects = range.getClientRects();
+      if (rects.length === 0) return;
+      const rect = rects[0];
+      
+      activeTooltip = document.createElement("div");
+      activeTooltip.className = "bm-selection-tooltip";
+      activeTooltip.innerHTML = `
+        <button class="bm-tooltip-btn" id="bm-btn-define">📖 Define</button>
+        <button class="bm-tooltip-btn" id="bm-btn-simplify">💡 Simplify</button>
+      `;
+      
+      // Position tooltip slightly above selection
+      activeTooltip.style.left = `${rect.left + window.scrollX + rect.width / 2 - 70}px`;
+      activeTooltip.style.top = `${rect.top + window.scrollY - 45}px`;
+      
+      document.body.appendChild(activeTooltip);
+      
+      activeTooltip.querySelector("#bm-btn-define").addEventListener("click", () => {
+        triggerSimplifySelection(selectedText, "define", range, profile);
+        activeTooltip.remove();
+        activeTooltip = null;
+      });
+      activeTooltip.querySelector("#bm-btn-simplify").addEventListener("click", () => {
+        triggerSimplifySelection(selectedText, "simplify", range, profile);
+        activeTooltip.remove();
+        activeTooltip = null;
+      });
+    }
+  });
+}
+
+/**
+ * Renders and wires drag listener coordinates on SVG Concept Maps
+ */
+function setupConceptMap(cmap, profile) {
+  const canvas = document.getElementById("bm-svg-canvas");
+  const svg = document.getElementById("bm-svg-connections");
+  
+  const mainNode = cmap.main;
+  const nodes = cmap.nodes;
+  
+  const allConcepts = [
+    { id: "root", name: mainNode, isRoot: true, x: 140, y: 200 }
+  ];
+  
+  nodes.forEach((n, idx) => {
+    const angle = (idx * 2 * Math.PI) / nodes.length;
+    const r = 140; // radius of orbit
+    allConcepts.push({
+      id: `node-${idx}`,
+      name: n,
+      isRoot: false,
+      x: Math.round(140 + r * Math.cos(angle)),
+      y: Math.round(200 + r * Math.sin(angle))
+    });
+  });
+  
+  allConcepts.forEach((c) => {
+    const div = document.createElement("div");
+    div.className = `bm-svg-node ${c.isRoot ? 'root' : ''}`;
+    div.id = `bm-cmap-dom-${c.id}`;
+    div.textContent = c.name;
+    div.style.left = `${c.x}px`;
+    div.style.top = `${c.y}px`;
+    canvas.appendChild(div);
+    
+    // Implement drag and drop
+    let isDragging = false;
+    let startX, startY;
+    
+    div.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      startX = e.clientX - div.offsetLeft;
+      startY = e.clientY - div.offsetTop;
+      div.style.zIndex = 10;
+      e.preventDefault();
+    });
+    
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      let left = e.clientX - startX;
+      let top = e.clientY - startY;
+      
+      left = Math.max(0, Math.min(canvas.clientWidth - div.clientWidth, left));
+      top = Math.max(0, Math.min(canvas.clientHeight - div.clientHeight, top));
+      
+      div.style.left = `${left}px`;
+      div.style.top = `${top}px`;
+      
+      c.x = left;
+      c.y = top;
+      
+      drawConnections();
+    });
+    
+    document.addEventListener("mouseup", () => {
+      if (isDragging) {
+        isDragging = false;
+        div.style.zIndex = c.isRoot ? 3 : 2;
+      }
+    });
+    
+    // Double click node to simplify
+    div.addEventListener("dblclick", () => {
+      const range = document.createRange();
+      range.selectNode(div);
+      triggerSimplifySelection(c.name, "simplify", range, profile);
+    });
+  });
+  
+  function drawConnections() {
+    svg.innerHTML = "";
+    const root = allConcepts.find(c => c.isRoot);
+    const rootDiv = document.getElementById(`bm-cmap-dom-${root.id}`);
+    const rx = root.x + rootDiv.clientWidth / 2;
+    const ry = root.y + rootDiv.clientHeight / 2;
+    
+    allConcepts.forEach((c) => {
+      if (c.isRoot) return;
+      const childDiv = document.getElementById(`bm-cmap-dom-${c.id}`);
+      const cx = c.x + childDiv.clientWidth / 2;
+      const cy = c.y + childDiv.clientHeight / 2;
+      
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      const mx = (rx + cx) / 2;
+      const my = (ry + cy) / 2 - 20;
+      path.setAttribute("d", `M ${rx} ${ry} Q ${mx} ${my} ${cx} ${cy}`);
+      path.setAttribute("class", "bm-svg-connection");
+      svg.appendChild(path);
+    });
+  }
+  
+  setTimeout(drawConnections, 100);
+}
+
+/**
+ * Triggers define or simplify API request and puts cards inline
+ */
+function triggerSimplifySelection(text, mode, range, profile) {
+  let containerElement = range.commonAncestorContainer;
+  if (containerElement.nodeType === 3) {
+    containerElement = containerElement.parentElement;
+  }
+  const blockEl = containerElement.closest("p, h2, h3, h4, li") || containerElement;
+  
+  const resultCard = document.createElement("div");
+  resultCard.className = "bm-card bm-selection-result-card";
+  resultCard.innerHTML = `<div style="font-size: 13px; opacity:0.8;">⏳ Fetching ${mode === 'define' ? 'definition' : 'explanation'} for "${escapeHtml(text)}"...</div>`;
+  blockEl.parentNode.insertBefore(resultCard, blockEl.nextSibling);
+  
+  chrome.runtime.sendMessage({
+    action: "simplifyQuery",
+    text: text,
+    mode: mode,
+    profile: profile
+  }, (response) => {
+    if (response && response.success && response.data) {
+      const result = response.data.result;
+      resultCard.innerHTML = `
+        <div style="font-family: 'Space Grotesk', sans-serif; font-size:14px; font-weight:700; color: #10b981; margin-bottom: 6px;">
+          ${mode === 'define' ? '📖 Definition' : '💡 Explanation'}: "${escapeHtml(text)}"
+        </div>
+        <div style="font-size:14px; line-height:1.5;">${parseSimpleMarkdown(result)}</div>
+        <button style="background:transparent; border:none; color:inherit; opacity:0.5; font-size:11px; cursor:pointer; padding: 4px 0; margin-top:8px;" class="bm-dismiss-card-btn">Dismiss</button>
+      `;
+      resultCard.querySelector(".bm-dismiss-card-btn").addEventListener("click", () => {
+        resultCard.remove();
+      });
+      // Allow speaking this block too!
+      wireTTSElement(resultCard);
+    } else {
+      const err = (response && response.error) ? response.error : "Could not connect to backend.";
+      resultCard.innerHTML = `
+        <div style="color: #ef4444; font-size:13px;">Error: ${err}</div>
+        <button style="background:transparent; border:none; color:inherit; opacity:0.5; font-size:11px; cursor:pointer; padding: 4px 0; margin-top:8px;" class="bm-dismiss-card-btn">Dismiss</button>
+      `;
+      resultCard.querySelector(".bm-dismiss-card-btn").addEventListener("click", () => {
+        resultCard.remove();
+      });
+    }
+  });
+}
+
+/**
+ * Text to speech system variables
+ */
+let synth = window.speechSynthesis;
+let currentUtterance = null;
+let activeSpeechElement = null;
+let originalSpeechHTML = "";
+
+function speakTextWithHighlight(text, element) {
+  if (synth.speaking) {
+    synth.cancel();
+    if (activeSpeechElement) {
+      activeSpeechElement.innerHTML = originalSpeechHTML;
+    }
+    if (activeSpeechElement === element) {
+      activeSpeechElement = null;
+      return;
+    }
+  }
+
+  activeSpeechElement = element;
+  originalSpeechHTML = element.innerHTML;
+
+  const clone = element.cloneNode(true);
+  const controls = clone.querySelector(".bm-tts-controls");
+  if (controls) controls.remove();
+  const rawText = clone.innerText.trim();
+
+  // Highlight words
+  const words = rawText.split(/(\s+)/);
+  let html = "";
+  let offset = 0;
+
+  words.forEach(word => {
+    if (/\s+/.test(word)) {
+      html += word;
+      offset += word.length;
+    } else {
+      const start = offset;
+      const end = offset + word.length;
+      html += `<span class="bm-highlight-sentence" data-start="${start}" data-end="${end}">${escapeHtml(word)}</span>`;
+      offset += word.length;
+    }
+  });
+
+  html += ` <span class="bm-tts-controls"><button class="bm-tts-btn" title="Stop Speaking">⏹️</button></span>`;
+  element.innerHTML = html;
+
+  element.querySelector(".bm-tts-btn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    synth.cancel();
+  });
+
+  const wordSpans = element.querySelectorAll(".bm-highlight-sentence");
+
+  currentUtterance = new SpeechSynthesisUtterance(rawText);
+  
+  chrome.storage.local.get(["ttsRate"], (settings) => {
+    currentUtterance.rate = settings.ttsRate || 1.0;
+    synth.speak(currentUtterance);
+  });
+
+  currentUtterance.onboundary = (event) => {
+    if (event.name === "word") {
+      const charIndex = event.charIndex;
+      wordSpans.forEach(span => {
+        const start = parseInt(span.getAttribute("data-start"));
+        const end = parseInt(span.getAttribute("data-end"));
+        if (charIndex >= start && charIndex < end) {
+          span.className = "bm-highlight-sentence bm-highlight-word";
+        } else {
+          span.className = "bm-highlight-sentence";
+        }
+      });
+    }
+  };
+
+  currentUtterance.onend = () => {
+    element.innerHTML = originalSpeechHTML;
+    rewireSpeechButton(element);
+    activeSpeechElement = null;
+  };
+
+  currentUtterance.onerror = () => {
+    element.innerHTML = originalSpeechHTML;
+    rewireSpeechButton(element);
+    activeSpeechElement = null;
+  };
+}
+
+function rewireSpeechButton(element) {
+  const btn = element.querySelector(".bm-tts-btn");
+  if (btn) {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const clone = element.cloneNode(true);
+      const controls = clone.querySelector(".bm-tts-controls");
+      if (controls) controls.remove();
+      speakTextWithHighlight(clone.innerText.trim(), element);
+    });
+  }
+}
+
+function wireTTSElement(el) {
+  if (!el) return;
+  const existing = el.querySelector(".bm-tts-controls");
+  if (existing) existing.remove();
+
+  const span = document.createElement("span");
+  span.className = "bm-tts-controls";
+  span.innerHTML = `<button class="bm-tts-btn" title="Speak Aloud">🔊</button>`;
+  el.appendChild(span);
+  
+  rewireSpeechButton(el);
 }
 
 /**
  * Removes the adaptation overlay and restores original webpage state.
  */
 function removeAdaptation() {
-  // 1. Remove injected focus stylesheet
+  // Cancel speech synthesiser
+  if (synth) {
+    synth.cancel();
+  }
+
   const focusStyles = document.getElementById("bridgemind-focus-styles");
   if (focusStyles) {
     focusStyles.remove();
   }
 
-  // 2. Restore hidden original page elements
   originalDisplayStyles.forEach((originalDisplay, el) => {
     if (el) {
       el.style.display = originalDisplay;
@@ -410,13 +855,11 @@ function removeAdaptation() {
   });
   originalDisplayStyles.clear();
 
-  // 3. Remove overlay from DOM
   if (overlayElement) {
     overlayElement.remove();
     overlayElement = null;
   }
 
-  // 4. Restore scrollbars
   if (originalBodyStyles.overflow !== undefined) {
     document.body.style.overflow = originalBodyStyles.overflow;
   }
@@ -456,16 +899,15 @@ function parseSimpleMarkdown(markdown) {
   
   // Group <li> tags inside a <ul>
   html = html.split('\n').map(line => {
-    // If it's a heading, bullet or empty, just return it
     if (line.startsWith("<h") || line.startsWith("<li>")) {
       return line;
     }
     if (line.trim().length === 0) {
       return "";
     }
-    // Wrap normal text lines in paragraph tags
     return `<p>${line}</p>`;
   }).join('\n');
   
   return html;
 }
+

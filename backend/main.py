@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from models.schemas import AdaptRequest, AdaptResponse, ProfileSettings
+from models.schemas import AdaptRequest, AdaptResponse, ProfileSettings, ChatRequest, ChatResponse, SimplifyRequest, SimplifyResponse
 from agents.orchestrator import orchestrate_adaptation
+from utils.gemini_client import chat_with_gemini, simplify_text_with_gemini
 from typing import List, Dict
 import uvicorn
 import logging
@@ -104,5 +105,32 @@ def get_profile(profile_id: str):
         raise HTTPException(status_code=404, detail=f"Profile '{profile_id}' not found.")
     return BUILTIN_PROFILES[pid]
 
+@app.post("/api/chat", response_model=ChatResponse)
+def chat_endpoint(request: ChatRequest):
+    """
+    Endpoint that handles conversation messages from the student about the webpage content.
+    """
+    try:
+        logging.info(f"Received chat query. Profile: {request.profile}")
+        response_text = chat_with_gemini(request.content, request.query, request.profile)
+        return ChatResponse(response=response_text)
+    except Exception as e:
+        logging.error(f"Error during chat process: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Chat query failed: {str(e)}")
+
+@app.post("/api/simplify", response_model=SimplifyResponse)
+def simplify_endpoint(request: SimplifyRequest):
+    """
+    Endpoint that simplifies a specific word/phrase selected by the student.
+    """
+    try:
+        logging.info(f"Received simplify query. Mode: {request.mode}")
+        response_text = simplify_text_with_gemini(request.text, request.mode, request.profile or "custom")
+        return SimplifyResponse(result=response_text)
+    except Exception as e:
+        logging.error(f"Error during simplification process: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Simplification failed: {str(e)}")
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+

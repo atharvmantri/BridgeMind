@@ -128,10 +128,13 @@
                 <button class="theme-pills active" data-theme="cream">Cream</button>
                 <button class="theme-pills" data-theme="sepia">Sepia</button>
                 <button class="theme-pills" data-theme="dark">Dark</button>
+                <button class="theme-pills" id="sim-ruler-toggle" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">Focus Ruler</button>
               </div>
             </div>
 
-            <div class="adapted-content-area">
+            <div class="adapted-content-area" style="position: relative; overflow-y: auto;">
+              <div class="bm-reading-ruler hidden" id="sim-reading-ruler" style="position: absolute; left:0; width:100%; height:35px; pointer-events:none; z-index:5;"></div>
+              
               <!-- TLDR (Comprehension Agent) -->
               <div class="adapted-card adapted-tldr" id="adapted-tldr-box">
                 <h4>💡 Quick TL;DR Summary</h4>
@@ -149,35 +152,53 @@
                   Quantum entanglement occurs when <strong>particles connect</strong> in a way that links their physical properties. 
                 </p>
                 <p>
-                  Because of this connection, actions on one particle **instantly influence** the other. This happens even if they are light-years apart.
+                  Because of this connection, actions on one particle <strong>instantly influence</strong> the other. This happens even if they are light-years apart.
                 </p>
                 <p>
-                  This behavior was first studied in 1935 by **Einstein, Podolsky, and Rosen**. They called it "spooky action at a distance."
+                  This behavior was first studied in 1935 by <strong>Einstein, Podolsky, and Rosen</strong>. They called it "spooky action at a distance."
                 </p>
               </div>
 
-              <!-- Concept Map Button -->
-              <button class="mock-cmap-btn" id="sim-cmap-btn">🕸️ View Concept Map</button>
+              <!-- Floating Actions -->
+              <div style="display: flex; gap: 8px; margin-top: 15px;">
+                <button class="mock-cmap-btn" id="sim-cmap-btn" style="flex: 1;">🕸️ View Concept Map</button>
+                <button class="mock-cmap-btn" id="sim-ask-btn" style="flex: 1; background: #10b981; border-color: #10b981; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);">💬 Ask AI</button>
+              </div>
 
               <!-- In-sim Concept Map Drawer -->
-              <div class="mock-cmap-drawer hidden" id="sim-cmap-drawer">
-                <div class="drawer-header">
-                  <h5>Concept Map</h5>
-                  <button id="sim-close-cmap">&times;</button>
+              <div class="mock-cmap-drawer hidden" id="sim-cmap-drawer" style="position: absolute; top:0; right:0; width:100%; height:100%; background:var(--bg-pane); z-index:10; border-left:1px solid rgba(120, 120, 120, 0.2); box-shadow: -4px 0 20px rgba(0,0,0,0.15); display: flex; flex-direction: column;">
+                <div class="drawer-header" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid rgba(120,120,120,0.15);">
+                  <h5 style="margin:0;">Concept Map</h5>
+                  <button id="sim-close-cmap" style="background:transparent; border:none; font-size:18px; cursor:pointer; color:inherit;">&times;</button>
                 </div>
-                <div class="drawer-body">
-                  <div class="cmap-bubble root">Quantum Entanglement</div>
-                  <div class="cmap-line"></div>
-                  <div class="cmap-nodes">
-                    <div class="cmap-bubble">Particle Links</div>
-                    <div class="cmap-bubble">Instant Effect</div>
-                    <div class="cmap-bubble">1935 Einstein Study</div>
+                <div class="drawer-body" style="flex:1; padding: 10px; display: block;">
+                  <div style="font-size: 10px; opacity: 0.6; text-align: center; margin-bottom: 5px;">💡 Drag concepts to organize, double-click to simplify.</div>
+                  <div class="bm-svg-cmap-canvas" id="sim-svg-canvas" style="height: 220px; width:100%; border:1px dashed rgba(120,120,120,0.3); border-radius:8px; position:relative; overflow:hidden;">
+                    <svg class="bm-svg-connections-layer" id="sim-svg-connections" style="width:100%; height:100%; position:absolute; top:0; left:0; pointer-events:none;"></svg>
                   </div>
+                </div>
+              </div>
+
+              <!-- In-sim Chat Sidebar -->
+              <div class="mock-cmap-drawer hidden" id="sim-chat-sidebar" style="position: absolute; top:0; right:0; width:100%; height:100%; background:var(--bg-pane); z-index:10; border-left:1px solid rgba(120, 120, 120, 0.2); box-shadow: -4px 0 20px rgba(0,0,0,0.15); display: flex; flex-direction: column;">
+                <div class="drawer-header" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid rgba(120,120,120,0.15);">
+                  <h5 style="margin:0;">Ask BridgeMind AI</h5>
+                  <button id="sim-close-chat" style="background:transparent; border:none; font-size:18px; cursor:pointer; color:inherit;">&times;</button>
+                </div>
+                <div class="sim-chat-messages" id="sim-chat-messages" style="flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px;">
+                  <div class="sim-msg-ai" style="align-self: flex-start; background: rgba(120,120,120,0.08); padding:8px 12px; border-radius:8px; font-size:13px; max-width:85%;">
+                    Hi! Ask me anything about the quantum entanglement article.
+                  </div>
+                </div>
+                <div style="padding:10px; border-top:1px solid rgba(120,120,120,0.15); display:flex; gap:8px;">
+                  <input type="text" id="sim-chat-input" placeholder="Type a question..." style="flex:1; padding:6px 10px; border-radius:6px; border:1px solid rgba(120,120,120,0.2); background:rgba(120,120,120,0.05); color:inherit; font-size:13px; outline:none;">
+                  <button id="sim-send-chat" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">Send</button>
                 </div>
               </div>
 
             </div>
           </div>
+
 
         </div>
       </div>

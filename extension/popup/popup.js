@@ -17,6 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const toggleEmotion = document.getElementById("toggle-emotion");
   const focusLevelSlider = document.getElementById("focus-level");
   const focusLevelVal = document.getElementById("focus-level-val");
+  const ttsRateSlider = document.getElementById("tts-rate");
+  const ttsRateVal = document.getElementById("tts-rate-val");
 
   let activeProfile = "adhd"; // Default profile
 
@@ -25,9 +27,15 @@ document.addEventListener("DOMContentLoaded", () => {
     focusLevelVal.textContent = e.target.value;
   });
 
+  // TTS speed indicator update
+  ttsRateSlider.addEventListener("input", (e) => {
+    ttsRateVal.textContent = e.target.value;
+    saveSettings();
+  });
+
   // Load saved configuration on popup open
   if (chrome.storage && chrome.storage.local) {
-    chrome.storage.local.get(["activeProfile", "masterEnabled", "customSettings"], (settings) => {
+    chrome.storage.local.get(["activeProfile", "masterEnabled", "customSettings", "ttsRate"], (settings) => {
       if (settings.masterEnabled !== undefined) {
         masterToggle.checked = settings.masterEnabled;
       }
@@ -44,6 +52,13 @@ document.addEventListener("DOMContentLoaded", () => {
         toggleEmotion.checked = cs.emotion;
         focusLevelSlider.value = cs.focusLevel || 2;
         focusLevelVal.textContent = cs.focusLevel || 2;
+      }
+      if (settings.ttsRate !== undefined) {
+        ttsRateSlider.value = settings.ttsRate;
+        ttsRateVal.textContent = settings.ttsRate;
+      } else {
+        ttsRateSlider.value = 1.0;
+        ttsRateVal.textContent = "1.0";
       }
     });
   }
@@ -98,7 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
       chrome.storage.local.set({
         activeProfile: activeProfile,
         masterEnabled: masterToggle.checked,
-        customSettings: customSettings
+        customSettings: customSettings,
+        ttsRate: parseFloat(ttsRateSlider.value)
       });
     }
   }
