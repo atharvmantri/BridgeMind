@@ -10,6 +10,72 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- Onboarding Wizard Overlay -->
+  <div id="onboarding-overlay" class="onboarding-overlay hidden">
+    <div class="onboarding-card">
+      <!-- Slide 1: Welcome & Profile -->
+      <div class="onboarding-slide active" id="onboard-slide-1">
+        <h3 class="onboard-title">Welcome to BridgeMind</h3>
+        <p class="onboard-subtitle">Which cognitive profile matches you best?</p>
+        <div class="onboard-options">
+          <button class="onboard-opt-card" data-profile="adhd">
+            <span class="opt-icon">⚡</span>
+            <strong>ADHD</strong>
+            <span>Short paragraphs & TL;DR</span>
+          </button>
+          <button class="onboard-opt-card" data-profile="dyslexia">
+            <span class="opt-icon">📖</span>
+            <strong>Dyslexia</strong>
+            <span>Sepia spacing guides</span>
+          </button>
+          <button class="onboard-opt-card" data-profile="autism">
+            <span class="opt-icon">🧩</span>
+            <strong>Autism</strong>
+            <span>Predictable explicit steps</span>
+          </button>
+          <button class="onboard-opt-card" data-profile="custom">
+            <span class="opt-icon">⚙️</span>
+            <strong>Custom</strong>
+            <span>Manual agent config</span>
+          </button>
+        </div>
+        <div class="onboard-footer">
+          <button class="btn-onboard-next" id="btn-onboard-next-1" disabled>Continue</button>
+        </div>
+      </div>
+
+      <!-- Slide 2: Reading Material Type -->
+      <div class="onboarding-slide" id="onboard-slide-2">
+        <h3 class="onboard-title">Typical Material</h3>
+        <p class="onboard-subtitle">What type of content do you read most?</p>
+        <div class="onboard-options">
+          <button class="onboard-opt-card-rect" data-type="academic">🎓 Dense papers & textbooks</button>
+          <button class="onboard-opt-card-rect" data-type="assignments">📝 Assignments & homework prompts</button>
+          <button class="onboard-opt-card-rect" data-type="articles">📰 Online news & articles</button>
+          <button class="onboard-opt-card-rect" data-type="general">🌐 General browsing & forms</button>
+        </div>
+        <div class="onboard-footer">
+          <button class="btn-onboard-next" id="btn-onboard-next-2" disabled>Continue</button>
+        </div>
+      </div>
+
+      <!-- Slide 3: Challenges -->
+      <div class="onboarding-slide" id="onboard-slide-3">
+        <h3 class="onboard-title">Reading Obstacles</h3>
+        <p class="onboard-subtitle">What bothers you most when reading online?</p>
+        <div class="onboard-options-grid">
+          <button class="onboard-opt-pill" data-challenge="clutter">🚫 Ads & distractions</button>
+          <button class="onboard-opt-pill" data-challenge="wall">🧱 Long walls of text</button>
+          <button class="onboard-opt-pill" data-challenge="ambiguous">🤔 Ambiguous phrasing</button>
+          <button class="onboard-opt-pill" data-challenge="sensory">🎨 Animated layouts</button>
+        </div>
+        <div class="onboard-footer">
+          <button class="btn-onboard-next" id="btn-onboard-finish">Complete Setup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="popup-container">
     <!-- Header -->
     <header class="app-header">
@@ -27,6 +93,25 @@
 
     <!-- Main Content -->
     <main class="app-main">
+      <!-- Reading Progress & Metrics Dashboard -->
+      <section class="section-progress">
+        <h2 class="section-title">Reading Dashboard</h2>
+        <div class="metrics-grid">
+          <div class="metric-box">
+            <span class="metric-val" id="metric-pages">0</span>
+            <span class="metric-lbl">Pages Adapted</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-val" id="metric-time">0m</span>
+            <span class="metric-lbl">Est. Time Saved</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-val" id="metric-feedback">100%</span>
+            <span class="metric-lbl">Helpful Rating</span>
+          </div>
+        </div>
+      </section>
+
       <section class="section-profiles">
         <h2 class="section-title">Cognitive Profile</h2>
         <div class="profile-grid">
@@ -142,8 +227,9 @@
     </main>
 
     <!-- Footer -->
-    <footer class="app-footer">
+    <footer class="app-footer" style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--color-text-muted); border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 12px; margin-top: auto;">
       <span>BridgeMind v1.0 • Built for cognitive equity</span>
+      <button id="btn-reset-data" style="background: transparent; border: none; color: var(--color-primary-light); font-size: 10px; cursor: pointer; text-decoration: underline;">Reset Data</button>
     </footer>
   </div>
   <script src="popup.js"></script>

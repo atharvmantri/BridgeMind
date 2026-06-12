@@ -35,7 +35,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Load saved configuration on popup open
   if (chrome.storage && chrome.storage.local) {
-    chrome.storage.local.get(["activeProfile", "masterEnabled", "customSettings", "ttsRate"], (settings) => {
+    chrome.storage.local.get([
+      "activeProfile", "masterEnabled", "customSettings", "ttsRate",
+      "onboardingCompleted", "adaptedCount", "thumbsUpCount", "thumbsDownCount"
+    ], (settings) => {
       if (settings.masterEnabled !== undefined) {
         masterToggle.checked = settings.masterEnabled;
       }
@@ -60,6 +63,29 @@ document.addEventListener("DOMContentLoaded", () => {
         ttsRateSlider.value = 1.0;
         ttsRateVal.textContent = "1.0";
       }
+
+      // 1. Show onboarding if not completed
+      const onboardingOverlay = document.getElementById("onboarding-overlay");
+      if (!settings.onboardingCompleted) {
+        onboardingOverlay.classList.remove("hidden");
+        initializeOnboarding();
+      } else {
+        onboardingOverlay.classList.add("hidden");
+      }
+
+      // 2. Render Metrics Dashboard
+      const pagesCount = settings.adaptedCount || 0;
+      const thumbsUp = settings.thumbsUpCount || 0;
+      const thumbsDown = settings.thumbsDownCount || 0;
+
+      document.getElementById("metric-pages").textContent = pagesCount;
+      document.getElementById("metric-time").textContent = `${Math.round(pagesCount * 1.5)}m`;
+
+      let feedbackRate = 100;
+      if (thumbsUp + thumbsDown > 0) {
+        feedbackRate = Math.round((thumbsUp / (thumbsUp + thumbsDown)) * 100);
+      }
+      document.getElementById("metric-feedback").textContent = `${feedbackRate}%`;
     });
   }
 
@@ -253,5 +279,105 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (type === "success") {
       statusMessage.classList.add("success");
     }
+  }
+
+  function initializeOnboarding() {
+    const onboardingOverlay = document.getElementById("onboarding-overlay");
+    const slide1 = document.getElementById("onboard-slide-1");
+    const slide2 = document.getElementById("onboard-slide-2");
+    const slide3 = document.getElementById("onboard-slide-3");
+
+    const btnNext1 = document.getElementById("btn-onboard-next-1");
+    const btnNext2 = document.getElementById("btn-onboard-next-2");
+    const btnFinish = document.getElementById("btn-onboard-finish");
+
+    let selectedProfile = "";
+    let selectedType = "";
+    let selectedChallenges = [];
+
+    // Slide 1 Selection
+    const profileOpts = slide1.querySelectorAll(".onboard-opt-card");
+    profileOpts.forEach(opt => {
+      opt.addEventListener("click", () => {
+        profileOpts.forEach(o => o.classList.remove("selected"));
+        opt.classList.add("selected");
+        selectedProfile = opt.getAttribute("data-profile");
+        btnNext1.removeAttribute("disabled");
+      });
+    });
+
+    btnNext1.addEventListener("click", () => {
+      slide1.classList.remove("active");
+      slide2.classList.add("active");
+    });
+
+    // Slide 2 Selection
+    const typeOpts = slide2.querySelectorAll(".onboard-opt-card-rect");
+    typeOpts.forEach(opt => {
+      opt.addEventListener("click", () => {
+        typeOpts.forEach(o => o.classList.remove("selected"));
+        opt.classList.add("selected");
+        selectedType = opt.getAttribute("data-type");
+        btnNext2.removeAttribute("disabled");
+      });
+    });
+
+    btnNext2.addEventListener("click", () => {
+      slide2.classList.remove("active");
+      slide3.classList.add("active");
+    });
+
+    // Slide 3 Selection
+    const pillOpts = slide3.querySelectorAll(".onboard-opt-pill");
+    pillOpts.forEach(opt => {
+      opt.addEventListener("click", () => {
+        opt.classList.toggle("selected");
+        const challenge = opt.getAttribute("data-challenge");
+        if (opt.classList.contains("selected")) {
+          selectedChallenges.push(challenge);
+        } else {
+          selectedChallenges = selectedChallenges.filter(c => c !== challenge);
+        }
+      });
+    });
+
+    btnFinish.addEventListener("click", () => {
+      if (chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({
+          onboardingCompleted: true,
+          activeProfile: selectedProfile,
+          onboardingAnswers: {
+            profile: selectedProfile,
+            contentType: selectedType,
+            challenges: selectedChallenges
+          }
+        }, () => {
+          // Sync selection UI
+          activeProfile = selectedProfile;
+          selectProfileCard(selectedProfile);
+          saveSettings();
+          
+          // Hide overlay
+          onboardingOverlay.classList.add("hidden");
+        });
+      }
+    });
+  }
+
+  // Reset Data Listener
+  const btnResetData = document.getElementById("btn-reset-data");
+  if (btnResetData) {
+    btnResetData.addEventListener("click", () => {
+      if (confirm("Reset onboarding wizard and reading metrics?")) {
+        chrome.storage.local.set({
+          onboardingCompleted: false,
+          adaptedCount: 0,
+          thumbsUpCount: 0,
+          thumbsDownCount: 0
+        }, () => {
+          window.location.reload();
+        });
+      }
+    });
   }
 });

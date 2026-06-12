@@ -269,6 +269,13 @@ function applyAdaptation(data, profile) {
           <button class="bm-theme-btn high-contrast" data-theme="high-contrast" title="High Contrast Theme"></button>
         </div>
 
+        <!-- Feedback buttons -->
+        <div class="bm-feedback-controls" style="display: flex; align-items: center; gap: 6px; border-left: 1px solid rgba(120, 120, 120, 0.2); padding-left: 12px; margin-left: 6px;">
+          <span style="font-size:11px; opacity:0.7;">Helpful?</span>
+          <button class="bm-nav-btn" id="btn-feedback-up" title="This was helpful" style="padding: 4px 8px; font-size:12px; line-height: 1;">👍</button>
+          <button class="bm-nav-btn" id="btn-feedback-down" title="This wasn't helpful" style="padding: 4px 8px; font-size:12px; line-height: 1;">👎</button>
+        </div>
+
         <!-- Undo Button -->
         <button class="bm-btn-close" id="btn-close-bm">Restore Original</button>
       </div>
@@ -327,6 +334,14 @@ function applyAdaptation(data, profile) {
   originalBodyStyles.overflow = document.body.style.overflow;
   document.body.style.overflow = "hidden";
 
+  // Increment page adapted count in Chrome storage
+  if (chrome.storage && chrome.storage.local) {
+    chrome.storage.local.get(["adaptedCount"], (settings) => {
+      const count = (settings.adaptedCount || 0) + 1;
+      chrome.storage.local.set({ adaptedCount: count });
+    });
+  }
+
   // Wire up event listeners inside the overlay
   setupOverlayEvents(data, profile);
 }
@@ -339,6 +354,37 @@ function setupOverlayEvents(data, profile) {
   document.getElementById("btn-close-bm").addEventListener("click", () => {
     removeAdaptation();
   });
+
+  // Feedback Buttons
+  const btnFeedbackUp = document.getElementById("btn-feedback-up");
+  const btnFeedbackDown = document.getElementById("btn-feedback-down");
+  
+  if (btnFeedbackUp && btnFeedbackDown) {
+    btnFeedbackUp.addEventListener("click", () => {
+      chrome.storage.local.get(["thumbsUpCount"], (settings) => {
+        const count = (settings.thumbsUpCount || 0) + 1;
+        chrome.storage.local.set({ thumbsUpCount: count }, () => {
+          disableFeedbackButtons("Thanks! 👍");
+        });
+      });
+    });
+    
+    btnFeedbackDown.addEventListener("click", () => {
+      chrome.storage.local.get(["thumbsDownCount"], (settings) => {
+        const count = (settings.thumbsDownCount || 0) + 1;
+        chrome.storage.local.set({ thumbsDownCount: count }, () => {
+          disableFeedbackButtons("Recorded! 👎");
+        });
+      });
+    });
+    
+    function disableFeedbackButtons(message) {
+      const parent = btnFeedbackUp.parentElement;
+      if (parent) {
+        parent.innerHTML = `<span style="font-size:11px; color:#10b981; font-weight:600; animation:fade-in 0.2s;">${message}</span>`;
+      }
+    }
+  }
 
   // Theme Switches
   const themeBtns = overlayElement.querySelectorAll(".bm-theme-btn");

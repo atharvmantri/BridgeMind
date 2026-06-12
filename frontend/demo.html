@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BridgeMind — Standalone Live Demo</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Styling for Standalone Demo overlay inside the page */
+    .demo-overlay-host {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      animation: fade-in 0.25s ease;
+    }
+    .demo-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 40px;
+      backdrop-filter: blur(10px);
+      box-sizing: border-box;
+      border-bottom: 1px solid rgba(120, 120, 120, 0.15);
+    }
+    .demo-content-wrapper {
+      flex: 1;
+      overflow-y: auto;
+      padding: 40px 10%;
+      box-sizing: border-box;
+    }
+    .demo-card {
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 28px;
+      border: 1px solid rgba(120, 120, 120, 0.1);
+      background: rgba(120, 120, 120, 0.03);
+    }
+    .demo-card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    
+    /* Themes */
+    .theme-cream { background-color: #fdfaf2 !important; color: #2b2821 !important; }
+    .theme-cream .demo-top-bar { background: rgba(253, 250, 242, 0.9) !important; }
+    .theme-cream .demo-card { background: #ffffff !important; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+    
+    .theme-sepia { background-color: #f4ecd8 !important; color: #433422 !important; }
+    .theme-sepia .demo-top-bar { background: rgba(244, 236, 216, 0.9) !important; }
+    .theme-sepia .demo-card { background: #fbf5e6 !important; box-shadow: 0 4px 15px rgba(67,52,34,0.04); }
+
+    .theme-dark { background-color: #12111a !important; color: #e4e4e7 !important; }
+    .theme-dark .demo-top-bar { background: rgba(18, 17, 26, 0.9) !important; }
+    .theme-dark .demo-card { background: #191824 !important; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+
+    .theme-high-contrast { background-color: #000000 !important; color: #ffff00 !important; }
+    .theme-high-contrast .demo-top-bar { background: #000000 !important; border-bottom: 2px solid #ffff00 !important; }
+    .theme-high-contrast .demo-card { background: #000000 !important; border: 1px solid #ffff00 !important; }
+
+    /* Font adjusters dyslexia */
+    .font-dyslexic {
+      font-family: 'Comic Sans MS', sans-serif !important;
+      letter-spacing: 0.08em;
+      word-spacing: 0.15em;
+    }
+    .spacing-dyslexic .demo-content-wrapper {
+      line-height: 2.0 !important;
+    }
+  </style>
+</head>
+<body class="demo-page-body" style="background: #0b0a14; color: #f3f4f6; font-family: 'Inter', sans-serif;">
+  
+  <div class="container" style="padding: 40px 20px; max-width: 900px; margin: 0 auto;">
+    
+    <!-- Navigation Back Link -->
+    <div style="margin-bottom: 30px;">
+      <a href="index.html" style="color: var(--color-primary-light); text-decoration: none; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+        &larr; Back to Home
+      </a>
+    </div>
+
+    <!-- Intro Header -->
+    <header style="margin-bottom: 40px; text-align: center;">
+      <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 1.5px; margin-bottom: 10px;">BridgeMind Sandbox</div>
+      <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 700; background: linear-gradient(135deg, #fff, var(--color-primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Live Adapt Demo</h1>
+      <p style="color: var(--color-text-muted); font-size: 16px; max-width: 600px; margin: 12px auto 0 auto; line-height: 1.5;">
+        Test the multi-agent cognitive adaptation engine in real-time. Choose a profile below to adapt our preloaded dense article about Quantum Computing.
+      </p>
+    </header>
+
+    <!-- Configure Panel -->
+    <section class="adapted-card" style="background: rgba(26,23,49,0.5); border: 1px solid rgba(91,79,233,0.15); padding: 24px; border-radius: 16px; margin-bottom: 32px; display: flex; flex-direction: column; gap: 20px;">
+      <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; margin: 0;">1. Select Cognitive Profile</h3>
+      
+      <div class="simulator-controls" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0;">
+        <button class="sim-profile-btn active" id="btn-prof-adhd" data-profile="adhd" style="padding: 12px; font-size: 13px; font-weight:600;">⚡ ADHD</button>
+        <button class="sim-profile-btn" id="btn-prof-dyslexia" data-profile="dyslexia" style="padding: 12px; font-size: 13px; font-weight:600;">📖 Dyslexia</button>
+        <button class="sim-profile-btn" id="btn-prof-autism" data-profile="autism" style="padding: 12px; font-size: 13px; font-weight:600;">🧩 Autism</button>
+      </div>
+
+      <div style="text-align: center;">
+        <button id="btn-run-adapt" class="btn btn-primary" style="width: 100%; max-width: 320px; padding: 14px; font-size: 15px; font-weight: 700; box-shadow: 0 4px 15px rgba(91,79,233,0.4);">
+          Adapt This Article
+        </button>
+      </div>
+    </section>
+
+    <!-- Dense Article Body -->
+    <section class="adapted-card" style="background: #ffffff; color: #1a1a2e; padding: 32px; border-radius: 16px; border: 1px solid #e0e0e0;">
+      <h2 style="font-size: 26px; margin-bottom: 12px; color: #111; font-family: 'Space Grotesk', sans-serif;">Introduction to Quantum Computing</h2>
+      <div style="font-size: 11px; color: #6b7280; margin-bottom: 24px; border-bottom: 1px solid #f0f0f0; padding-bottom: 12px;">Pre-loaded Article • Encyclopedia excerpt</div>
+      
+      <div class="raw-article-text" style="font-size: 14px; line-height: 1.6; display: flex; flex-direction: column; gap: 16px;">
+        <p>
+          Quantum computing is a rapidly-emerging technology that harnesses the laws of quantum mechanics to solve problems too complex for classical computers. These machines are fundamentally different from the classical computers we use today. Classical computers process information in bits, which represent either a 0 or a 1. Quantum computers, however, use quantum bits, or qubits, which can exist in a state of superposition.
+        </p>
+        <p>
+          Superposition is a quantum principle that allows a qubit to represent a 0, a 1, or any quantum proportion of both simultaneously. Because qubits can exist in superposition, a quantum computer can process vast amounts of calculations in parallel. Another critical principle of quantum mechanics used in quantum computing is quantum entanglement.
+        </p>
+        <p>
+          Quantum entanglement describes a close relationship between particles where the state of one particle instantly correlates with the state of another, even when separated by astronomical distances. Einstein famously referred to this phenomenon as "spooky action at a distance." In quantum computing, entangled qubits allow qubits to share information instantly, accelerating computational speed exponentially.
+        </p>
+        <p>
+          To realize these computational gains, quantum algorithms exploit entanglement and superposition to manipulate probability amplitudes. Major applications include quantum cryptography (which could break RSA encryption while securing communication networks), simulation of complex chemical molecular reactions for drug discovery, and logistics optimization modeling.
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Injected Overlay Template Wrapper (loaded dynamically) -->
+  <div id="demo-overlay" class="demo-overlay-host hidden"></div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const btnAdapt = document.getElementById("btn-run-adapt");
+      const profileBtns = document.querySelectorAll(".sim-profile-btn");
+      const overlay = document.getElementById("demo-overlay");
+      
+      let selectedProfile = "adhd";
+
+      profileBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          profileBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          selectedProfile = btn.getAttribute("data-profile");
+        });
+      });
+
+      btnAdapt.addEventListener("click", () => {
+        btnAdapt.textContent = "Processing adapted views...";
+        btnAdapt.setAttribute("disabled", "true");
+        
+        // Grab raw text content
+        const rawParagraphs = Array.from(document.querySelectorAll(".raw-article-text p")).map(p => p.innerText).join("\n\n");
+        
+        // Call local FastAPI adapt endpoint
+        fetch("http://127.0.0.1:8000/api/adapt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            content: rawParagraphs,
+            page_type: "article",
+            profile: selectedProfile,
+            agents: ["reader", "focus", "comprehension", "communication", "emotion"]
+          })
+        })
+        .then(res => {
+          if (!res.ok) throw new Error("Backend offline");
+          return res.json();
+        })
+        .then(data => {
+          btnAdapt.textContent = "Adapt This Article";
+          btnAdapt.removeAttribute("disabled");
+          renderAdaptOverlay(data, selectedProfile);
+        })
+        .catch(err => {
+          console.warn("FastAPI backend is offline. Running simulation fallback...");
+          // Generate mock response dynamically to make presentation bulletproof!
+          setTimeout(() => {
+            btnAdapt.textContent = "Adapt This Article";
+            btnAdapt.removeAttribute("disabled");
+            const mockData = generateDemoMockData(rawParagraphs, selectedProfile);
+            renderAdaptOverlay(mockData, selectedProfile);
+          }, 800);
+        });
+      });
+
+      function renderAdaptOverlay(data, profile) {
+        overlay.innerHTML = "";
+        overlay.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+
+        // Style overlay theme based on profile
+        overlay.className = "demo-overlay-host theme-cream";
+        if (profile === "dyslexia") {
+          overlay.className = "demo-overlay-host theme-sepia font-dyslexic spacing-dyslexic";
+        } else if (profile === "adhd") {
+          overlay.className = "demo-overlay-host theme-cream spacing-adhd";
+        } else if (profile === "autism") {
+          overlay.className = "demo-overlay-host theme-cream spacing-autism";
+        }
+
+        // Layout warning banner
+        let warningHtml = "";
+        if (data.emotion_output && data.emotion_output.distress_detected) {
+          warningHtml = `
+            <div class="bm-warning-banner" style="margin-bottom: 20px; background: rgba(245,158,11,0.12); border: 1px solid #f59e0b; border-radius:12px; padding:12px 16px; font-size:13px; display:flex; gap:10px;">
+              <span>⚠️</span>
+              <span><strong>Note:</strong> ${data.emotion_output.warning_message || "Sensitive topic detected."}</span>
+            </div>
+          `;
+        }
+
+        // Layout TLDR card
+        let tldrHtml = "";
+        if (data.comprehension_output) {
+          const bullets = data.comprehension_output.tldr.map(b => `<li style="margin-bottom:6px;">${escapeHtml(b)}</li>`).join("");
+          tldrHtml = `
+            <div class="demo-card">
+              <h3 class="demo-card-title">💡 Quick TL;DR Summary</h3>
+              <ul style="padding-left: 18px; font-size: 14px;">${bullets}</ul>
+            </div>
+          `;
+        }
+
+        // Layout Communication guide
+        let commHtml = "";
+        if (data.communication_output && data.communication_output.steps) {
+          const steps = data.communication_output.steps.map(s => `<li style="margin-bottom:8px; font-size:13px;">✓ ${escapeHtml(s)}</li>`).join("");
+          commHtml = `
+            <div class="demo-card" style="border-left: 4px solid #10b981;">
+              <h3 class="demo-card-title">📋 Step-by-Step Instructions</h3>
+              <ul style="list-style:none; padding-left: 0;">${steps}</ul>
+            </div>
+          `;
+        }
+
+        // Layout Reader card
+        const parsedText = parseSimpleMarkdown(data.reader_output.structured_text);
+        let readerHtml = `
+          <div class="demo-card">
+            <h3 class="demo-card-title">📖 Restructured Reading</h3>
+            <div style="font-size: 15px; line-height: 1.7;">${parsedText}</div>
+          </div>
+        `;
+
+        // Assemble concept map HTML
+        let cmapHtml = "";
+        if (data.comprehension_output && data.comprehension_output.concept_map) {
+          cmapHtml = `
+            <div class="bm-cmap-drawer hidden" id="demo-cmap-drawer" style="position:fixed; top:0; right:0; width:400px; height:100vh; background:inherit; border-left:1px solid rgba(120,120,120,0.2); box-shadow:-4px 0 30px rgba(0,0,0,0.15); display:flex; flex-direction:column; z-index:10000;">
+              <div class="bm-cmap-header" style="display:flex; justify-content:space-between; align-items:center; padding:20px; border-bottom:1px solid rgba(120,120,120,0.15);">
+                <h3 style="margin:0; font-family:'Space Grotesk',sans-serif;">Visual Concept Map</h3>
+                <button id="btn-close-demo-cmap" style="background:transparent; border:none; font-size:24px; cursor:pointer; color:inherit;">&times;</button>
+              </div>
+              <div class="bm-cmap-canvas" style="flex:1; display:block; padding:15px;">
+                <div style="font-size:11px; opacity:0.7; margin-bottom:8px; text-align:center;">💡 Drag nodes to organize, double-click to simplify.</div>
+                <div class="bm-svg-cmap-canvas" id="demo-svg-canvas" style="height:480px; width:100%; border:1px dashed rgba(120,120,120,0.3); border-radius:12px; position:relative; overflow:hidden;">
+                  <svg class="bm-svg-connections-layer" id="demo-svg-connections" style="width:100%; height:100%; position:absolute; top:0; left:0; pointer-events:none;"></svg>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        // Layout sidebar chat
+        let chatHtml = `
+          <div class="bm-chat-sidebar hidden" id="demo-chat-sidebar" style="position:fixed; top:0; right:0; width:450px; height:100vh; background:inherit; border-left:1px solid rgba(120,120,120,0.2); box-shadow:-4px 0 30px rgba(0,0,0,0.15); display:flex; flex-direction:column; z-index:10000;">
+            <div class="bm-chat-resizer" id="demo-chat-resizer" style="position:absolute; left:0; top:0; width:6px; height:100%; cursor:col-resize; z-index:10001; background:transparent;"></div>
+            <div class="bm-chat-header" style="display:flex; justify-content:space-between; align-items:center; padding:20px; border-bottom:1px solid rgba(120,120,120,0.15);">
+              <h3 style="margin:0; font-family:'Space Grotesk',sans-serif;">Ask BridgeMind AI</h3>
+              <button id="btn-close-demo-chat" style="background:transparent; border:none; font-size:24px; cursor:pointer; color:inherit;">&times;</button>
+            </div>
+            <div class="bm-chat-messages" id="demo-chat-messages" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:14px;">
+              <div class="bm-message bm-message-ai">Hi! Ask me any question about the Quantum Computing article.</div>
+            </div>
+            <div class="bm-chat-input-container" style="padding:16px 20px; border-top:1px solid rgba(120,120,120,0.15); display:flex; gap:10px; background:rgba(120,120,120,0.02);">
+              <input type="text" class="bm-chat-input" id="demo-chat-input" placeholder="Type a question...">
+              <button class="bm-chat-send-btn" id="btn-send-demo-chat">Send</button>
+            </div>
+          </div>
+        `;
+
+        overlay.innerHTML = `
+          <!-- Top Bar -->
+          <div class="demo-top-bar">
+            <div class="bm-nav-brand">
+              <span class="bm-logo-dot"></span>
+              <span class="bm-brand-text">BridgeMind Active</span>
+              <span class="bm-profile-badge">${profile.toUpperCase()} Demo Mode</span>
+            </div>
+            <div class="bm-controls">
+              <button class="bm-nav-btn" id="btn-toggle-demo-font">Toggle Dyslexia Font</button>
+              <button class="bm-nav-btn" id="btn-toggle-demo-ruler">Focus Ruler</button>
+              
+              <div class="bm-themes">
+                <button class="bm-theme-btn cream active" data-theme="cream"></button>
+                <button class="bm-theme-btn sepia" data-theme="sepia"></button>
+                <button class="bm-theme-btn dark" data-theme="dark"></button>
+              </div>
+
+              <div class="bm-feedback-controls" style="display:flex; align-items:center; gap:6px; border-left:1px solid rgba(120,120,120,0.2); padding-left:12px; margin-left:6px;">
+                <span style="font-size:11px; opacity:0.7;">Helpful?</span>
+                <button class="bm-nav-btn" id="btn-demo-feedback-up" style="padding:4px 8px; font-size:12px; line-height:1;">👍</button>
+                <button class="bm-nav-btn" id="btn-demo-feedback-down" style="padding:4px 8px; font-size:12px; line-height:1;">👎</button>
+              </div>
+
+              <button class="bm-btn-close" id="btn-close-demo">Restore Original</button>
+            </div>
+          </div>
+
+          <!-- Content Wrapper -->
+          <div class="demo-content-wrapper">
+            <div class="bm-reading-ruler hidden" id="demo-reading-ruler" style="position:absolute; left:0; width:100%; height:40px; pointer-events:none; z-index:5;"></div>
+            <div style="max-width: 800px; margin: 0 auto; position:relative;">
+              ${warningHtml}
+              ${commHtml}
+              ${tldrHtml}
+              ${readerHtml}
+            </div>
+          </div>
+
+          <!-- Floating drawer buttons -->
+          <div style="position:fixed; bottom:28px; right:28px; display:flex; gap:12px; z-index:999;">
+            ${data.comprehension_output ? `<button class="bm-cmap-trigger-btn" id="btn-trigger-demo-cmap" style="position:static; box-shadow:none;">🕸️ Map</button>` : ""}
+            <button class="bm-ask-trigger-btn" id="btn-trigger-demo-chat" style="position:static; box-shadow:none;">💬 Ask AI</button>
+          </div>
+
+          ${cmapHtml}
+          ${chatHtml}
+        `;
+
+        // Wire overlay events
+        setupDemoOverlayEvents(data, profile);
+      }
+
+      function setupDemoOverlayEvents(data, profile) {
+        const contentWrapper = overlay.querySelector(".demo-content-wrapper");
+        
+        // Close Adapt overlay
+        document.getElementById("btn-close-demo").addEventListener("click", () => {
+          overlay.classList.add("hidden");
+          document.body.style.overflow = "auto";
+          if (synth) synth.cancel();
+        });
+
+        // Theme selects
+        const themeBtns = overlay.querySelectorAll(".bm-theme-btn");
+        themeBtns.forEach(btn => {
+          btn.addEventListener("click", () => {
+            themeBtns.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            const tName = btn.getAttribute("data-theme");
+            overlay.classList.remove("theme-cream", "theme-sepia", "theme-dark");
+            overlay.classList.add(`theme-${tName}`);
+          });
+        });
+
+        // Font family
+        document.getElementById("btn-toggle-demo-font").addEventListener("click", () => {
+          overlay.classList.toggle("font-dyslexic");
+          overlay.classList.toggle("spacing-dyslexic");
+        });
+
+        // Focus Ruler track
+        const rulerToggle = document.getElementById("btn-toggle-demo-ruler");
+        const ruler = document.getElementById("demo-reading-ruler");
+        let activeRuler = false;
+        rulerToggle.addEventListener("click", () => {
+          activeRuler = !activeRuler;
+          rulerToggle.classList.toggle("active", activeRuler);
+          ruler.classList.toggle("hidden", !activeRuler);
+        });
+        contentWrapper.addEventListener("mousemove", (e) => {
+          if (!activeRuler) return;
+          const rect = contentWrapper.getBoundingClientRect();
+          const top = e.clientY - rect.top + contentWrapper.scrollTop - 20;
+          ruler.style.transform = `translateY(${top}px)`;
+        });
+
+        // Feedback clicks
+        const feedbackUp = document.getElementById("btn-demo-feedback-up");
+        const feedbackDown = document.getElementById("btn-demo-feedback-down");
+        feedbackUp.addEventListener("click", () => {
+          feedbackUp.parentElement.innerHTML = `<span style="font-size:11px; color:#10b981; font-weight:600;">Thanks! 👍</span>`;
+        });
+        feedbackDown.addEventListener("click", () => {
+          feedbackDown.parentElement.innerHTML = `<span style="font-size:11px; color:#10b981; font-weight:600;">Recorded! 👎</span>`;
+        });
+
+        // TTS player elements
+        const ttsElements = overlay.querySelectorAll(".demo-card p, .demo-card h3, .demo-card li");
+        ttsElements.forEach(wireDemoTTS);
+
+        // Map trigger drawer
+        const cmapBtn = document.getElementById("btn-trigger-demo-cmap");
+        const cmapDrawer = document.getElementById("demo-cmap-drawer");
+        const cmapClose = document.getElementById("btn-close-demo-cmap");
+        const chatDrawer = document.getElementById("demo-chat-sidebar");
+
+        if (cmapBtn && cmapDrawer) {
+          cmapBtn.addEventListener("click", () => {
+            cmapDrawer.classList.toggle("hidden");
+            if (!cmapDrawer.classList.contains("hidden")) {
+              chatDrawer.classList.add("hidden");
+              setupDemoConceptMap(data.comprehension_output.concept_map);
+            }
+          });
+          cmapClose.addEventListener("click", () => cmapDrawer.classList.add("hidden"));
+        }
+
+        // Chat trigger drawer
+        const chatBtn = document.getElementById("btn-trigger-demo-chat");
+        const chatClose = document.getElementById("btn-close-demo-chat");
+        const chatInput = document.getElementById("demo-chat-input");
+        const btnSend = document.getElementById("btn-send-demo-chat");
+        const chatMessages = document.getElementById("demo-chat-messages");
+        const chatResizer = document.getElementById("demo-chat-resizer");
+
+        chatBtn.addEventListener("click", () => {
+          chatDrawer.classList.toggle("hidden");
+          if (!chatDrawer.classList.contains("hidden")) {
+            if (cmapDrawer) cmapDrawer.classList.add("hidden");
+            chatInput.focus();
+          }
+        });
+        chatClose.addEventListener("click", () => chatDrawer.classList.add("hidden"));
+
+        // Resize Sidebar chat
+        let dragging = false;
+        chatResizer.addEventListener("mousedown", (e) => {
+          dragging = true;
+          chatResizer.classList.add("dragging");
+          document.body.style.cursor = "col-resize";
+          e.preventDefault();
+        });
+        document.addEventListener("mousemove", (e) => {
+          if (!dragging) return;
+          const w = window.innerWidth - e.clientX;
+          if (w >= 360 && w <= Math.min(window.innerWidth * 0.85, 900)) {
+            chatDrawer.style.width = `${w}px`;
+          }
+        });
+        document.addEventListener("mouseup", () => {
+          if (dragging) {
+            dragging = false;
+            chatResizer.classList.remove("dragging");
+            document.body.style.cursor = "default";
+          }
+        });
+
+        // Chat submission
+        function submitDemoChat() {
+          const query = chatInput.value.trim();
+          if (!query) return;
+
+          appendDemoMsg("user", query);
+          chatInput.value = "";
+
+          const pageText = data.reader_output.structured_text;
+          const loadingEl = appendDemoMsg("ai", "Thinking...");
+
+          // Call backend chat route
+          fetch("http://127.0.0.1:8000/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              content: pageText,
+              query: query,
+              profile: profile
+            })
+          })
+          .then(res => {
+            if (!res.ok) throw new Error("Offline");
+            return res.json();
+          })
+          .then(chatRes => {
+            loadingEl.remove();
+            appendDemoMsg("ai", chatRes.response);
+          })
+          .catch(() => {
+            // Mock response fallback
+            setTimeout(() => {
+              loadingEl.remove();
+              let ans = "In sandbox mode, AI tutors help you trace terms. Classic bits process binary codes, while superposition manipulates probability models.";
+              if (query.toLowerCase().includes("superposition")) {
+                ans = "Superposition allows a **qubit** to exist as both 0 and 1 at the same time, calculating parallel options.";
+              }
+              appendDemoMsg("ai", ans);
+            }, 600);
+          });
+        }
+
+        function appendDemoMsg(sender, text) {
+          const div = document.createElement("div");
+          div.className = `bm-message bm-message-${sender}`;
+          if (sender === "ai") {
+            div.innerHTML = parseSimpleMarkdown(text);
+            wireDemoTTS(div);
+          } else {
+            div.textContent = text;
+          }
+          chatMessages.appendChild(div);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          return div;
+        }
+
+        btnSend.addEventListener("click", submitDemoChat);
+        chatInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") submitDemoChat();
+        });
+      }
+
+      function setupDemoConceptMap(cmap) {
+        const canvas = document.getElementById("demo-svg-canvas");
+        const svg = document.getElementById("demo-svg-connections");
+        if (!canvas || !svg) return;
+
+        canvas.querySelectorAll(".bm-svg-node").forEach(n => n.remove());
+
+        const rootNode = cmap.main;
+        const nodes = cmap.nodes;
+        
+        const allConcepts = [
+          { id: "root", name: rootNode, isRoot: true, x: 120, y: 200 }
+        ];
+
+        nodes.forEach((n, idx) => {
+          const angle = (idx * 2 * Math.PI) / nodes.length;
+          const r = 120;
+          allConcepts.push({
+            id: `node-${idx}`,
+            name: n,
+            isRoot: false,
+            x: Math.round(120 + r * Math.cos(angle)),
+            y: Math.round(200 + r * Math.sin(angle))
+          });
+        });
+
+        allConcepts.forEach((c) => {
+          const div = document.createElement("div");
+          div.className = `bm-svg-node ${c.isRoot ? 'root' : ''}`;
+          div.id = `demo-cmap-dom-${c.id}`;
+          div.textContent = c.name;
+          div.style.left = `${c.x}px`;
+          div.style.top = `${c.y}px`;
+          canvas.appendChild(div);
+
+          let dragging = false;
+          let startX, startY;
+
+          div.addEventListener("mousedown", (e) => {
+            dragging = true;
+            startX = e.clientX - div.offsetLeft;
+            startY = e.clientY - div.offsetTop;
+            div.style.zIndex = 10;
+            e.preventDefault();
+          });
+
+          document.addEventListener("mousemove", (e) => {
+            if (!dragging) return;
+            let left = e.clientX - startX;
+            let top = e.clientY - startY;
+
+            left = Math.max(0, Math.min(canvas.clientWidth - div.clientWidth, left));
+            top = Math.max(0, Math.min(canvas.clientHeight - div.clientHeight, top));
+
+            div.style.left = `${left}px`;
+            div.style.top = `${top}px`;
+            c.x = left;
+            c.y = top;
+
+            drawDemoConnections();
+          });
+
+          document.addEventListener("mouseup", () => {
+            if (dragging) {
+              dragging = false;
+              div.style.zIndex = c.isRoot ? 3 : 2;
+            }
+          });
+        });
+
+        function drawDemoConnections() {
+          svg.innerHTML = "";
+          const root = allConcepts.find(c => c.isRoot);
+          const rootDiv = document.getElementById(`demo-cmap-dom-${root.id}`);
+          const rx = root.x + rootDiv.clientWidth / 2;
+          const ry = root.y + rootDiv.clientHeight / 2;
+
+          allConcepts.forEach(c => {
+            if (c.isRoot) return;
+            const childDiv = document.getElementById(`demo-cmap-dom-${c.id}`);
+            const cx = c.x + childDiv.clientWidth / 2;
+            const cy = c.y + childDiv.clientHeight / 2;
+
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            const mx = (rx + cx) / 2;
+            const my = (ry + cy) / 2 - 15;
+            path.setAttribute("d", `M ${rx} ${ry} Q ${mx} ${my} ${cx} ${cy}`);
+            path.setAttribute("class", "bm-svg-connection");
+            svg.appendChild(path);
+          });
+        }
+
+        setTimeout(drawDemoConnections, 100);
+      }
+
+      // TTS speech engine
+      let synth = window.speechSynthesis;
+      let currUtterance = null;
+      let currEl = null;
+      let origHTML = "";
+
+      function wireDemoTTS(el) {
+        if (!el || el.querySelector(".bm-tts-controls")) return;
+        const span = document.createElement("span");
+        span.className = "bm-tts-controls";
+        span.innerHTML = `<button class="bm-tts-btn">🔊</button>`;
+        el.appendChild(span);
+
+        span.querySelector(".bm-tts-btn").addEventListener("click", (e) => {
+          e.stopPropagation();
+          const clone = el.cloneNode(true);
+          const controls = clone.querySelector(".bm-tts-controls");
+          if (controls) controls.remove();
+          speakDemoText(clone.innerText.trim(), el);
+        });
+      }
+
+      function speakDemoText(text, el) {
+        if (synth && synth.speaking) {
+          synth.cancel();
+          if (currEl) currEl.innerHTML = origHTML;
+          if (currEl === el) {
+            currEl = null;
+            return;
+          }
+        }
+
+        currEl = el;
+        origHTML = el.innerHTML;
+
+        const words = text.split(/(\s+)/);
+        let h = "";
+        let offset = 0;
+        words.forEach(w => {
+          if (/\s+/.test(w)) {
+            h += w;
+            offset += w.length;
+          } else {
+            h += `<span class="bm-highlight-sentence" data-start="${offset}" data-end="${offset+w.length}">${w}</span>`;
+            offset += w.length;
+          }
+        });
+
+        h += ` <span class="bm-tts-controls"><button class="bm-tts-btn">⏹️</button></span>`;
+        el.innerHTML = h;
+
+        el.querySelector(".bm-tts-btn").addEventListener("click", (e) => {
+          e.stopPropagation();
+          synth.cancel();
+        });
+
+        const wordSpans = el.querySelectorAll(".bm-highlight-sentence");
+
+        currUtterance = new SpeechSynthesisUtterance(text);
+        if (synth) synth.speak(currUtterance);
+
+        currUtterance.onboundary = (e) => {
+          if (e.name === "word") {
+            const idx = e.charIndex;
+            wordSpans.forEach(span => {
+              const start = parseInt(span.getAttribute("data-start"));
+              const end = parseInt(span.getAttribute("data-end"));
+              if (idx >= start && idx < end) {
+                span.className = "bm-highlight-sentence bm-highlight-word";
+              } else {
+                span.className = "bm-highlight-sentence";
+              }
+            });
+          }
+        };
+
+        currUtterance.onend = () => {
+          el.innerHTML = origHTML;
+          wireDemoTTS(el);
+          currEl = null;
+        };
+
+        currUtterance.onerror = () => {
+          el.innerHTML = origHTML;
+          wireDemoTTS(el);
+          currEl = null;
+        };
+      }
+
+      // Mock generators for demo
+      function generateDemoMockData(raw, profile) {
+        let structured_text = "";
+        let tldr = [];
+        let nodes = [];
+        let main = "Quantum Computing";
+
+        if (profile === "adhd") {
+          tldr = [
+            "Uses superposition and entanglement rules.",
+            "Process qubits in parallel states.",
+            "Saves computing cycles exponentially."
+          ];
+          nodes = ["Parallel State", "Superposition", "Spooky Action", "Cryptography"];
+          structured_text = `
+### What is Quantum Computing?
+Quantum computing is a **rapidly-emerging technology**. It solves problems too complex for classical computers.
+
+### Binary bits vs Qubits
+Classical computers use bits (0 or 1). Quantum computers use **qubits**. Qubits can exist in **superposition**.
+
+### Superposition & Entanglement
+Superposition represents **proportions of both 0 and 1**. Entanglement correlates states instantly across distances. Einstein called it **spooky action**.
+          `;
+        } else if (profile === "dyslexia") {
+          tldr = [
+            "Qubits share states in superposition.",
+            "Performs computations faster.",
+            "Solves encryption problems."
+          ];
+          nodes = ["Qubit Share", "Superposition Speed", " RSA Encryption"];
+          structured_text = `
+### Understanding Quantum Computers
+Machines use **laws of quantum mechanics**. Qubits can **superpose**. They do not use fixed codes.
+
+### Mechanics Principles
+Measure one particle and it **instantly alters** the other. Acceleration of **computational speeds** happens.
+
+### Solving encryption
+Algorithms exploit **probability amplitudes**. This solves logistics, security models, and **RSA encryption codes**.
+          `;
+        } else if (profile === "autism") {
+          tldr = [
+            "Define superposition as qubit state options.",
+            "Identify entanglement speed benefits.",
+            "Apply algorithm models to security encryption."
+          ];
+          nodes = ["State Options", "Entanglement Speed", "RSA Security"];
+          structured_text = `
+### Quantum Computing Definition
+System that solves complex computations using qubit superpositions instead of simple binary codes.
+
+### Acceleration Guide
+Measure Qubit A. Qubit B synchronizes instantly. Speed rises exponentially.
+
+### Applications
+Quantum rules secure RSA lines, simulate chemical structures, and optimize logistics.
+          `;
+        }
+
+        return {
+          reader_output: { structured_text: structured_text.trim(), chunks: [structured_text] },
+          comprehension_output: {
+            tldr: tldr,
+            concept_map: { main: main, nodes: nodes },
+            simple_version: "This page is about quantum computers, which use superposition and entanglement to calculate equations faster.",
+            detailed_version: "Detailed summary of quantum computing qubits, cryptographic RSA applications, and chemical logistics optimizations."
+          },
+          communication_output: profile === "autism" ? {
+            steps: [
+              "You will define quantum computing superposition states.",
+              "You will describe particle entanglement links.",
+              "You will map cryptographic applications to logistics optimizations."
+            ]
+          } : null,
+          emotion_output: { distress_detected: false, warning_message: null }
+        };
+      }
+
+      function escapeHtml(text) {
+        if (!text) return "";
+        return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function parseSimpleMarkdown(markdown) {
+        if (!markdown) return "";
+        let html = escapeHtml(markdown);
+        html = html.replace(/^### (.*$)/gim, '<h4>$1</h4>');
+        html = html.replace(/^## (.*$)/gim, '<h3>$1</h3>');
+        html = html.replace(/^# (.*$)/gim, '<h2>$1</h2>');
+        html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+        html = html.split('\n').map(line => {
+          if (line.startsWith("<h")) return line;
+          if (line.trim().length === 0) return "";
+          return `<p>${line}</p>`;
+        }).join('\n');
+        return html;
+      }
+    });
+  </script>
+</body>
+</html>

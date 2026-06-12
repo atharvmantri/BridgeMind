@@ -367,3 +367,194 @@ input:checked + .slider:before {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Onboarding Wizard Styling */
+.onboarding-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(11, 10, 20, 0.96);
+  backdrop-filter: blur(16px);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease;
+}
+.onboarding-card {
+  width: 90%;
+  max-width: 350px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-glow);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+.onboarding-slide {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+  animation: fade-in 0.3s ease;
+}
+.onboarding-slide.active {
+  display: flex;
+}
+.onboard-title {
+  font-family: var(--font-family-header);
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  background: linear-gradient(135deg, #fff, var(--color-primary-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.onboard-subtitle {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: 1.4;
+}
+.onboard-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0;
+}
+.onboard-opt-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  transition: all 0.2s;
+}
+.onboard-opt-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.onboard-opt-card.selected {
+  border-color: var(--color-primary);
+  background: var(--bg-card-active);
+}
+.opt-icon {
+  font-size: 18px;
+}
+.onboard-opt-card strong {
+  font-size: 13px;
+  color: #fff;
+  flex: 1;
+}
+.onboard-opt-card span:last-child {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+.onboard-opt-card-rect {
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  color: #fff;
+  font-weight: 600;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+.onboard-opt-card-rect:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.onboard-opt-card-rect.selected {
+  border-color: var(--color-primary);
+  background: var(--bg-card-active);
+}
+.onboard-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.onboard-opt-pill {
+  padding: 10px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  cursor: pointer;
+  color: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.2s;
+}
+.onboard-opt-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.onboard-opt-pill.selected {
+  border-color: var(--color-primary);
+  background: var(--bg-card-active);
+}
+.btn-onboard-next {
+  width: 100%;
+  padding: 12px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-onboard-next:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn-onboard-next:not(:disabled):hover {
+  background: var(--color-primary-light);
+}
+
+/* Reading Progress Dashboard Styles */
+.section-progress {
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 12px;
+}
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.metric-box {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 10px 4px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.metric-val {
+  font-family: var(--font-family-header);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-primary-light);
+}
+.metric-lbl {
+  font-size: 9px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
